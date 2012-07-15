@@ -1,0 +1,4 @@
+en ny værdi uden ændringer i forhold til den sidste medfører ingen ændringer for EntityTimeline. 
+Dette kan være problematisk, da man så ikke kan se der er indsat en ny værdi til det nye tidspunkt.
+Det kan f.eks være problematisk da vi checker man hele tiden indsætter nyere data. 
+Det kan vi ikke se når vi bare smider nogle indsættelser helt væk, hvis de er magen til forrige værdi
