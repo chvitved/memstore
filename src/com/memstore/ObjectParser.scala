@@ -29,7 +29,7 @@ object ObjectParser {
 	  fs.foreach(_.setAccessible(true))
 	  val fields = fs.filter{f => !Modifier.isStatic(f.getModifiers())}
 	  
-	  fields.foldLeft(Map[String, AnyRef]()){(map, f) => 
+	  val map =fields.foldLeft(Map[String, AnyRef]()){(map, f) => 
 	    val v = f.get(o)
 	    if (v != null && canParseValue(v)) {
 	    	map + (f.getName() -> v)
@@ -43,6 +43,8 @@ object ObjectParser {
 	      map
 	    }
 	  }
+	  val id = clas.getMethod("getEntityId").invoke(o)
+	  map + ("_id" -> id)
 	}
   	
   	def canParseValue(value: Any) = {

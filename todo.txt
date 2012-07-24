@@ -5,3 +5,6 @@ Det kan vi ikke se når vi bare smider nogle indsættelser helt væk, hvis de er ma
 
 Vi slete værdier. for at gøre det er vi nødt til at sammenligne med forrige takst og finde alle de elementer der ikke er med i den aktuelle takst
 ...
+
+
+unit test på at filtere _ f.eks _id

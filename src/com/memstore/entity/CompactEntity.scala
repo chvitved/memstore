@@ -10,7 +10,8 @@ object CompactEntity {
 	def apply(entityName: String, entityAsMap: Map[String, Any]): CompactEntity = {
 	  validate(entityName, entityAsMap)
 	  val eName = entityName.intern()
-      val indexValueTuple = for((name, value) <- entityAsMap) yield {
+	  val filteredMap = entityAsMap.filter(t => !t._1.startsWith("_"))
+      val indexValueTuple = for((name, value) <- filteredMap) yield {
         val eMap = map.getOrElse(eName, Map())
         eMap.get(name) match {
           case Some(index) => (index, value)
