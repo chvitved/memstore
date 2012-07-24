@@ -13,7 +13,7 @@ object EntityData{
 class EntityData private(val name: String, val primaryIndex: Map[Any, EntityTimeline]) {
   
   def +(date: Date, entity: Entity) : EntityData = {
-    val primaryKey = EntityDescriptor.getKey(name)
+    val primaryKey = "_id"
     val value: Any = entity(primaryKey)
     val et = primaryIndex.getOrElse(value, new EntityTimeline(name)) + (date, entity)
     new EntityData(name, primaryIndex + (value -> et)) 

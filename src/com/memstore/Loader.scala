@@ -8,6 +8,9 @@ import com.memstore.entity.ValuePool
 import com.memstore.entity.CompactEntityPool
 
 object Loader {
+  
+  val filteredEntitites = Set[String]("Takst", "ATCKoderOgTekst", "Doseringskode", "Indholdsstoffer", "Indikationskode", "LaegemiddelAdministrationsvejRef",
+      "Pakningskombinationer", "Pakningsstoerrelsesenhed", "Styrkeenhed", "Tilskudsintervaller", "UdgaaedeNavne")
 
 	def loadPricelists(rootDir: File) : EntityManager = {
 		val pricelistDirs = rootDir.listFiles(new FilenameFilter() {
@@ -33,11 +36,8 @@ object Loader {
 		    val date = elements.getValidFrom().getTime()
 		    ObjectParser(elements.getEntities().toSet) match {
 		      case (name, entities) => {
-		    	  if (entities.isEmpty) {
+		    	  if (entities.isEmpty || filter(name)) {
 		    		  em
-		    	  } else if (!EntityDescriptor.contains(name)) {
-		    	    println("ignoring entity " + name)
-		    	    em
 		    	  } else {
 		    	    entities.foldLeft(em) { (em, e) =>
 		    	      em.add(name, date, e)
@@ -46,6 +46,12 @@ object Loader {
 		      }
 		    }
 		}
+	}
+	
+	private def filter(name: String): Boolean = {
+	  val remove = filteredEntitites.contains(name)
+	  if (remove) println("not loading " + name)
+	  remove
 	}
 	
 	private def checkTimelines(em: EntityManager) {
