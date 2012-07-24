@@ -9,24 +9,25 @@ import com.memstore.entity.CompactEntityPool
 
 object Loader {
   
-  val filteredEntitites = Set[String]("Takst", "Pakningsstoerrelsesenhed", "Styrkeenhed", "Tilskudsintervaller")
+  val filteredEntitites = Set[String]("Takst", "ATCKoderOgTekst", "Doseringskode", "Indholdsstoffer", "Indikationskode", "LaegemiddelAdministrationsvejRef",
+      "Pakningskombinationer", "Pakningsstoerrelsesenhed", "Styrkeenhed", "Tilskudsintervaller", "UdgaaedeNavne")
 
-	def loadPricelists(rootDir: File) : EntityManager = {
-		val pricelistDirs = rootDir.listFiles(new FilenameFilter() {
-			def accept(file: File, name: String) = file.isDirectory && !name.startsWith(".")
-		})
-		
-		var counter = 1
-		pricelistDirs.foldLeft(EntityManager()){(em, dir) =>
-		  println("loading pricelist " + counter)
-			val em1 = loadPricelist(dir, em) 
-			checkTimelines(em1)
-			counter += 1
-			printMem()
-		  	printPools()
-		  	em1
-		}
-	}
+  def loadPricelists(rootDir: File) : EntityManager = {
+	  val pricelistDirs = rootDir.listFiles(new FilenameFilter() {
+		  def accept(file: File, name: String) = file.isDirectory && !name.startsWith(".")
+	  })
+
+	  var counter = 1
+	  pricelistDirs.foldLeft(EntityManager()){(em, dir) =>
+	  println("loading pricelist " + counter)
+	  val em1 = loadPricelist(dir, em) 
+	  checkTimelines(em1)
+	  counter += 1
+	  printMem()
+	  printPools()
+	  em1
+	  }
+  }
 
 	def loadPricelist(dir: File, em: EntityManager) : EntityManager = {
 		val pricelistElems = TakstImporter.importTakst(dir).getDatasets()

@@ -35,26 +35,33 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
   def this(entityName: String) = this(entityName, List[(Date, CompactEntity)]())
   
   def + (date: Date, entity: Entity) : EntityTimeline = {
-    val ce = CompactEntity(entityName, entity)
-    timeline match {
-      case Nil =>  new EntityTimeline(entityName, (date, ce) :: timeline)
-      case head :: tail => {
-        if (date.before(head._1)) {
-        	throw new Exception("data added must be the newest");
-        }
-        val diffMap = diff(head._2, ce)
-        if (diffMap.isEmpty) {
-          this
-        } else {
-          head._2.die
-          val ceDiff = CompactEntity(entityName, diffMap)
-          new EntityTimeline(entityName, (date, ce) :: (head._1, ceDiff) :: tail)
-        }
-      }
+    val current = get(date)
+    if (current == entity) this
+    else {
+    	val ce = CompactEntity(entityName, entity)
+    	timeline match {
+    	  case Nil =>  new EntityTimeline(entityName, (date, ce) :: timeline)
+    	  case head :: tail => {
+    		if (date.before(head._1)) {
+    			throw new Exception("data added must be the newest");
+    		}
+    		val diffMap = diff(head._2, ce)
+    		if (diffMap.isEmpty) {
+    			this
+    		} else {
+    			head._2.die
+    			val ceDiff = CompactEntity(entityName, diffMap)
+    			new EntityTimeline(entityName, (date, ce) :: (head._1, ceDiff) :: tail)
+    		}
+    	  }
+    	}
     }
   }
   
   def - (date: Date) :EntityTimeline = {
+    if (timeline.isEmpty || timeline.head._2 == null) {
+      throw new Exception(String.format("no value exists in the timeline", date, timeline.head._1))
+    }
     //we can only remove with a date later than the last one
     if (timeline.head._1.after(date)) 
     	throw new Exception(String.format("date set (%s) for removal was not after the latest date (%s) in the timeline", date, timeline.head._1))

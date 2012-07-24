@@ -9,3 +9,4 @@ Vi slete v¾rdier. for at g¿re det er vi n¿dt til at sammenligne med forrige taks
 
 outstanding unit test
 test tombstones in entitytimeline
+entitytimeline removal
