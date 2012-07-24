@@ -16,11 +16,11 @@ class EntityTest {
     val now = new Date()
     
     assertEquals("no value at this point in time", null, entity.get(now))
-    val e2 = entity.add(t1, map1)
+    val e2 = entity + (t1, map1)
     assertEquals("no value at this point in time", null, e2.get(new Date(500L)))
     assertEquals(map1, e2.get(now))
     
-    val e3 = e2.add(t2, map2)
+    val e3 = e2 + (t2, map2)
     
     assertEquals(map1, e3.get(new Date(1500L)))
     assertEquals(map2, e3.get(new Date(2000L)))
@@ -35,8 +35,8 @@ class EntityTest {
     
     val t1 = new Date(2000L)
     val t2 = new Date(1000L)
-    val e2 = entity.add(t1, map1)
-    e2.add(t2, map2)
+    val e2 = entity + (t1, map1)
+    e2 + (t2, map2)
   }
     
   

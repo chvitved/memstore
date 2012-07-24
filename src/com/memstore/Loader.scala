@@ -51,7 +51,7 @@ object Loader {
 	private def checkTimelines(em: EntityManager) {
 	  var acc = Vector[Int]()
 	  for(entityData <- em.map.values;
-	      et <- entityData.primaryKeyIndex.values
+	      et <- entityData.primaryIndex.values
 	  ) acc = acc :+ et.timeline.length
 	  val sorted = acc.sorted
 	  println("timeline length stats")

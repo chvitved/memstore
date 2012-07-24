@@ -12,7 +12,7 @@ class EntityManager private(val map: Map[String, EntityData]) {
   
   	def add(name: String, date: Date, entity: Map[String, Any]) : EntityManager = {
   	  val entityData = getEntityData(name)
-  	  new EntityManager(map + (name -> entityData.add(date, entity)))
+  	  new EntityManager(map + (name -> entityData.+(date, entity)))
   	}
   	
   	private def getEntityData(name: String) = map.getOrElse(name, EntityData(name))

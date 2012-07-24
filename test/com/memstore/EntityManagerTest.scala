@@ -34,7 +34,7 @@ class EntityManagerTest {
   }
   
   private def assertFetchById(expectedEntity: Map[String, Any], em: EntityManager, value: Any, time: Date) {
-    val foundEntity = em.get("test").primaryKeyIndex(value).get(time)
+    val foundEntity = em.get("test").primaryIndex(value).get(time)
     assertEquals(expectedEntity, foundEntity)
   } 
 }

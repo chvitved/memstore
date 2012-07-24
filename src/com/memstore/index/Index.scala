@@ -1,59 +1,37 @@
-//package com.memstore.index
-//import scala.collection.immutable.SortedMap
-//import scala.collection.immutable.TreeMap
-//import com.memstore.entity.CompactEntity
-//import java.util.Date
-//
-//object Index {
-//
-//  private def buildMap[CompactEntity,IndexType<%Ordered[IndexType]](data: Set[CompactEntity], indexMethod: (CompactEntity) => IndexType) : SortedMap[IndexType, Set[CompactEntity]] = {
-//    val mutableMap = new scala.collection.mutable.HashMap[IndexType, scala.collection.mutable.ListBuffer[CompactEntity]]() {
-//      override def default(key: IndexType) = {
-//          val list = new scala.collection.mutable.ListBuffer[CompactEntity]()
-//          put(key, list)
-//          list
-//      }
-//    }
-//    data.foreach(entity => mutableMap(indexMethod(entity)) + entity)
-//    val mapWithSet = mutableMap.elements.map((tuple) => (tuple._1, Set(tuple._2.toSeq:_*)))
-//    TreeMap[IndexType, Set[CompactEntity]](mapWithSet.toList.toSeq:_*)
-//    //wow these lines got ugly --improve
-//  }
-//  
-//  def create[Entity,IndexType<%Ordered[IndexType]](data: Set[CompactEntity], indexMethod: (CompactEntity) => IndexType ) = {
-//    new Index(buildMap(data, indexMethod), indexMethod)
-//  }
-//}
-//
-//class Index[IndexType<%Ordered[IndexType]] (val map: SortedMap[IndexType, Set[Entity]], indexMethod: (CompactEntity) => IndexType) {
-//
-//  def === (key: IndexType) : Set[Entity] = {
-//    map.getOrElse(key, Set[Entity]())
-//  }
-//  
-//  def + (ce: CompactEntity, date: Date): Index[IndexType] = {
-//    val key = indexMethod(ce)
-//    val newMap = if (key != null) {
-//    	val set = map.getOrElse(key, Set()) + ce
-//    	map + (key -> set)
-//    } else map //TODO we should probably not just throw away null values
-//    
-//    new Index(newMap, indexMethod)
-//  }
-//  
-//  def ++ (entities: Set[CompactEntity]): Index[IndexType] = entities.foldLeft(this) {(index, entity) => index + entity}
-//  
-//  def - (ce: CompactEntity): Index[IndexType] = {
-//    val key = indexMethod(ce)
-//    val set = map(key) - ce
-//    val newMap = map + (key -> set)
-//    new Index(newMap, indexMethod)
-//  }
-//  
-//  def -- (entities: Set[CompactEntity]): Index[IndexType] = entities.foldLeft(this) {(index, entity) => index - entity}
-//  
-//  def entities = map.foldLeft(Set[CompactEntity]()) {
-//	  (set, tuple) => set ++ tuple._2
-//  }
-//  
-//}
+package com.memstore.index
+import scala.collection.immutable.SortedMap
+import scala.collection.immutable.TreeMap
+import java.util.Date
+import com.memstore.entity.EntityTimeline
+import com.memstore.Types.Entity
+
+object Index {
+  
+  def apply[IndexType<%Ordered[IndexType]](indexMethod: Entity => IndexType) = {
+    new IndexImpl(TreeMap[IndexType, DateIndex](), indexMethod)
+  }
+}
+
+class IndexImpl[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIndex], indexMethod: Entity => IndexType) {
+  
+  def === (key: IndexType) : DateIndex = {
+    map.getOrElse(key, DateIndex())
+  }
+  
+  def + (date: Date, et: EntityTimeline): IndexImpl[IndexType] = {
+    val key = indexMethod(et.get(date))
+    val newMap = if (key != null) {
+    	val di = map.getOrElse(key, DateIndex()) + (date, et)
+    	map + (key -> di)
+    } else map //TODO we should probably not just throw away null values
+    new IndexImpl(newMap, indexMethod)
+  }
+  
+  def - (date: Date, et: EntityTimeline): IndexImpl[IndexType] = {
+    val key = indexMethod(et.get(date))
+    val di = map(key)  - (date, et)
+    val newMap = map + (key -> di)
+    new IndexImpl(newMap, indexMethod)
+  }
+  
+}

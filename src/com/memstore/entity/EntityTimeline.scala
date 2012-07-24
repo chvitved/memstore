@@ -29,11 +29,11 @@ object EntityTimeline {
   }
 }
 
-class EntityTimeline private(val entityName: String, val timeline: List[(Date, CompactEntity)]) {
+class EntityTimeline private(entityName: String, val timeline: List[(Date, CompactEntity)]) {
   
   def this(entityName: String) = this(entityName, List[(Date, CompactEntity)]())
   
-  def add(date: Date, entity: Map[String, Any]) : EntityTimeline = {
+  def + (date: Date, entity: Map[String, Any]) : EntityTimeline = {
     val ce = CompactEntity(entityName, entity)
     timeline match {
       case Nil =>  new EntityTimeline(entityName, (date, ce) :: timeline)
@@ -51,6 +51,13 @@ class EntityTimeline private(val entityName: String, val timeline: List[(Date, C
         }
       }
     }
+  }
+  
+  def - (date: Date) :EntityTimeline = {
+    //we can only remove with a date later than the last one
+    if (timeline.head._1.after(date)) 
+    	throw new Exception(String.format("date set (%s) for removal was not after the latest date (%s) in the timeline", date, timeline.head._1))
+    new EntityTimeline(entityName, (date, null) :: timeline)
   }
   
   private def diff(old: CompactEntity, nev: CompactEntity): Map[String, Any] = {
@@ -75,4 +82,3 @@ class EntityTimeline private(val entityName: String, val timeline: List[(Date, C
 }
 
 case class TombStone
-

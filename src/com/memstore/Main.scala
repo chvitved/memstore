@@ -38,8 +38,8 @@ object Main extends Application{
     //declare[Long]("UdgaaedeNavne","drugid")
     declare[String]("Udleveringsbestemmelser","kode")
   
-  val em = Loader.loadPricelist(new File("/Users/chr/ws-scala/pricelist-scala/data/takst/20100419"), EntityManager())
-  val em1 = Loader.loadPricelist(new File("/Users/chr/ws-scala/pricelist-scala/data/takst/20100419gl"), em)
+  val em = Loader.loadPricelists(new File("/Users/chr/ws-scala/pricelist-scala/data/takst"))
+  //val em1 = Loader.loadPricelist(new File("/Users/chr/ws-scala/pricelist-scala/data/takst/20100419gl"), em)
 
   private def declare[T](entityName: String, attributeName: String) {
     EntityDescriptor.add(entityName, attributeName)
