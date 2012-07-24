@@ -9,8 +9,7 @@ import com.memstore.entity.CompactEntityPool
 
 object Loader {
   
-  val filteredEntitites = Set[String]("Takst", "ATCKoderOgTekst", "Doseringskode", "Indholdsstoffer", "Indikationskode", "LaegemiddelAdministrationsvejRef",
-      "Pakningskombinationer", "Pakningsstoerrelsesenhed", "Styrkeenhed", "Tilskudsintervaller", "UdgaaedeNavne")
+  val filteredEntitites = Set[String]("Takst", "Pakningsstoerrelsesenhed", "Styrkeenhed", "Tilskudsintervaller")
 
 	def loadPricelists(rootDir: File) : EntityManager = {
 		val pricelistDirs = rootDir.listFiles(new FilenameFilter() {
@@ -88,7 +87,7 @@ object Loader {
 	  println("value pool size " + newValueSize)
 	  println("value pool grown " + (newValueSize - lastValuePoolSize))
 	  println("ce pool size " + newCeSize)
-	  println("ce pool keysize grown" + (newCeSize - lastCePoolSize))
+	  println("ce pool keysize grown " + (newCeSize - lastCePoolSize))
 	  lastCePoolSize = newCeSize
 	  lastValuePoolSize = newValueSize
 	}
