@@ -1,8 +1,9 @@
 package com.memstore.entity
 import java.util.Date
+import com.memstore.Types.Entity
 
 object EntityTimeline {
-  private def get(date: Date, entityName: String, timeline: List[(Date, CompactEntity)], map: Map[String, Any]) : Map[String, Any] = {
+  private def get(date: Date, entityName: String, timeline: List[(Date, CompactEntity)], map: Entity) : Entity = {
     timeline match {
       case (eDate, ce) :: tail => {
         if (!date.before(eDate)) {
@@ -17,7 +18,7 @@ object EntityTimeline {
     }
   }
   
-  private def add(accumulator: Map[String, Any], delta: Map[String, Any]) : Map[String, Any] = {
+  private def add(accumulator: Entity, delta: Entity) : Entity = {
     delta.foldLeft(accumulator){(map, tuple) =>
       val key = tuple._1
       val value = tuple._2
@@ -33,7 +34,7 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
   
   def this(entityName: String) = this(entityName, List[(Date, CompactEntity)]())
   
-  def + (date: Date, entity: Map[String, Any]) : EntityTimeline = {
+  def + (date: Date, entity: Entity) : EntityTimeline = {
     val ce = CompactEntity(entityName, entity)
     timeline match {
       case Nil =>  new EntityTimeline(entityName, (date, ce) :: timeline)
@@ -60,7 +61,7 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
     new EntityTimeline(entityName, (date, null) :: timeline)
   }
   
-  private def diff(old: CompactEntity, nev: CompactEntity): Map[String, Any] = {
+  private def diff(old: CompactEntity, nev: CompactEntity): Entity = {
     val oldSet = old.get(entityName).elements.toSet
     val newSet = nev.get(entityName).elements.toSet
     val add = oldSet -- newSet
@@ -76,7 +77,7 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
     }
   }
   
-  def get(date: Date) : Map[String, Any] = {
+  def get(date: Date) : Entity = {
       EntityTimeline.get(date, entityName, timeline, Map[String, Any]())
   }
 }

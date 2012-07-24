@@ -7,4 +7,5 @@ Vi slete v¾rdier. for at g¿re det er vi n¿dt til at sammenligne med forrige taks
 ...
 
 
-unit test pŒ at filtere _ f.eks _id
+outstanding unit test
+test tombstones in entitytimeline
