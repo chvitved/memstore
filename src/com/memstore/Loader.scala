@@ -8,8 +8,7 @@ import com.memstore.entity.ValuePool
 
 object Loader {
   
-  val filteredEntitites = Set[String]("Takst", "Tidsenhed", "ATCKoderOgTekst", "Doseringskode", "Indholdsstoffer", "Indikationskode", "LaegemiddelAdministrationsvejRef",
-      "Pakningskombinationer", "Pakningsstoerrelsesenhed", "Styrkeenhed", "Tilskudsintervaller", "UdgaaedeNavne")
+  val filteredEntitites = Set[String]("Takst", "Tidsenhed", "Pakningsstoerrelsesenhed", "Styrkeenhed")
 
   def loadPricelists(rootDir: File) : EntityManager = {
 	  val pricelistDirs = rootDir.listFiles(new FilenameFilter() {

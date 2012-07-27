@@ -9,7 +9,8 @@ object ValuePool {
   
   val types = Set[Class[_]](
 	    classOf[Int], classOf[Boolean], classOf[Date],
-	    classOf[Calendar], classOf[DivEnheder], classOf[java.lang.Long], classOf[Long]
+	    classOf[Calendar], classOf[DivEnheder], classOf[java.lang.Long], classOf[Long],
+	    classOf[java.lang.Double], classOf[Double]
 	)
   
   def intern[T](v: T): T = {
