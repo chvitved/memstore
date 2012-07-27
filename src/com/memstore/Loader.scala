@@ -5,7 +5,6 @@ import dk.trifork.sdm.importer.takst.TakstImporter
 import java.io.FilenameFilter
 import scala.collection.JavaConversions._
 import com.memstore.entity.ValuePool
-import com.memstore.entity.CompactEntityPool
 
 object Loader {
   
@@ -94,12 +93,8 @@ object Loader {
 	var lastValuePoolSize = 0;
 	private def printPools() {
 	  val newValueSize = ValuePool.allValues.size
-	  val newCeSize = CompactEntityPool.allEntities.size
 	  println("value pool size " + newValueSize)
 	  println("value pool grown " + (newValueSize - lastValuePoolSize))
-	  println("ce pool size " + newCeSize)
-	  println("ce pool keysize grown " + (newCeSize - lastCePoolSize))
-	  lastCePoolSize = newCeSize
 	  lastValuePoolSize = newValueSize
 	}
 } 

@@ -51,7 +51,6 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
     			this
     		} else {
     			Monitor.addDiff(entityName, diffMap)
-    			head._2.die
     			val ceDiff = CompactEntity(entityName, diffMap)
     			new EntityTimeline(entityName, (date, ce) :: (head._1, ceDiff) :: tail)
     		}

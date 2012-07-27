@@ -32,8 +32,7 @@ object CompactEntity {
 		val indexBitmap = values.map(_._1).foldLeft(0){(acc, index) => acc | (1 << index)} 
 		val sortedValues = values.toArray.sortWith{(v1, v2) => v1._1 < v2._1}.map(_._2)
 		val svInterned = sortedValues.map(ValuePool.intern(_))
-		val ce = new CompactEntity(name, ValuePool.intern(indexBitmap), svInterned)
-		CompactEntityPool.intern(ce)
+		new CompactEntity(name, ValuePool.intern(indexBitmap), svInterned)
 	}
 	
 	private def get(entityName: String, ce: CompactEntity): Map[String, Any] = {
@@ -65,8 +64,6 @@ class CompactEntity private(val name: String, private val indexBitmap: Int, priv
   def get(name: String) : Map[String, Any] = {
     CompactEntity.get(name, this)
   }
-  
-  def die = CompactEntityPool.remove(this)
   
   //TODO make efficient
   def getValue(attribute: String) = get(attribute)
