@@ -5,7 +5,7 @@ import dk.trifork.sdm.importer.takst.model.DivEnheder
 
 object ValuePool {
   
-  var allValues = scala.collection.mutable.Map[Any, Any]()
+  var allValues = Map[Any, Any]()
   
   val types = Set[Class[_]](
 	    classOf[Int], classOf[Boolean], classOf[Date],

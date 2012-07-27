@@ -1,6 +1,7 @@
 package com.memstore.entity
 import java.util.Date
 import com.memstore.Types.Entity
+import com.memstore.Monitor
 
 object EntityTimeline {
   private def get(date: Date, entityName: String, timeline: List[(Date, CompactEntity)], map: Entity) : Entity = {
@@ -49,6 +50,7 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
     		if (diffMap.isEmpty) {
     			this
     		} else {
+    			Monitor.addDiff(entityName, diffMap)
     			head._2.die
     			val ceDiff = CompactEntity(entityName, diffMap)
     			new EntityTimeline(entityName, (date, ce) :: (head._1, ceDiff) :: tail)

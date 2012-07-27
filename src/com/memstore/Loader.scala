@@ -9,7 +9,7 @@ import com.memstore.entity.CompactEntityPool
 
 object Loader {
   
-  val filteredEntitites = Set[String]("Takst", "ATCKoderOgTekst", "Doseringskode", "Indholdsstoffer", "Indikationskode", "LaegemiddelAdministrationsvejRef",
+  val filteredEntitites = Set[String]("Takst", "Tidsenhed", "ATCKoderOgTekst", "Doseringskode", "Indholdsstoffer", "Indikationskode", "LaegemiddelAdministrationsvejRef",
       "Pakningskombinationer", "Pakningsstoerrelsesenhed", "Styrkeenhed", "Tilskudsintervaller", "UdgaaedeNavne")
 
   def loadPricelists(rootDir: File) : EntityManager = {
@@ -19,19 +19,22 @@ object Loader {
 
 	  var counter = 1
 	  pricelistDirs.foldLeft(EntityManager()){(em, dir) =>
-	  println("loading pricelist " + counter)
-	  val em1 = loadPricelist(dir, em) 
-	  checkTimelines(em1)
-	  counter += 1
-	  printMem()
-	  printPools()
-	  em1
+		  println("loading pricelist " + counter)
+		  val em1 = loadPricelist(dir, em) 
+		  checkTimelines(em1)
+		  counter += 1
+		  printMem()
+		  printPools()
+		  Monitor.showAndClear()
+		  em1
 	  }
   }
 
 	def loadPricelist(dir: File, em: EntityManager) : EntityManager = {
+	  	val t1 = System.currentTimeMillis()
 		val pricelistElems = TakstImporter.importTakst(dir).getDatasets()
-		pricelistElems.foldLeft(em) {
+		val t2 = System.currentTimeMillis()
+		val newEm = pricelistElems.foldLeft(em) {
 		  (em, elements) => 
 		    val date = elements.getValidFrom().getTime()
 		    ObjectParser(elements.getEntities().toSet) match {
@@ -40,12 +43,17 @@ object Loader {
 		    		  em
 		    	  } else {
 		    	    entities.foldLeft(em) { (em, e) =>
-		    	      em.add(name, date, e)
+		    	     	em.add(name, date, e)
 		    	    }
 		    	  }
 		      }
 		    }
 		}
+	  	val t3 = System.currentTimeMillis()
+	  	println("time loading pricelist " + (t3-t1))
+	  	println("time parsing pricelist with sdm module " + (t2-t1))
+	  	println("time inserting in memstore " + (t3-t2))
+	  	newEm
 	}
 	
 	private def filter(name: String): Boolean = {
@@ -63,14 +71,16 @@ object Loader {
 	  println("timeline length stats")
 	  val length = sorted.length
 	  println("total timelines: " + length)
-	  println("timeline length 50 percentile: " + sorted((length * 0.5).toInt))
-	  println("timeline length 75 percentile: " + sorted((length * 0.75).toInt))
-	  println("timeline length 90 percentile: " + sorted((length * 0.90).toInt))
-	  println("timeline length 99 percentile: " + sorted((length * 0.99).toInt))
-	  println("timeline length 99.9 percentile: " + sorted((length * 0.999).toInt))
-	  println("timeline length 99.99 percentile: " + sorted((length * 0.9999).toInt))
-	  println("timeline length 99.999 percentile: " + sorted((length * 0.99999).toInt))
-	  println("timeline length max: " + sorted.last)
+	  if (length > 0) {
+		  println("timeline length 50 percentile: " + sorted((length * 0.5).toInt))
+		  println("timeline length 75 percentile: " + sorted((length * 0.75).toInt))
+		  println("timeline length 90 percentile: " + sorted((length * 0.90).toInt))
+		  println("timeline length 99 percentile: " + sorted((length * 0.99).toInt))
+		  println("timeline length 99.9 percentile: " + sorted((length * 0.999).toInt))
+		  println("timeline length 99.99 percentile: " + sorted((length * 0.9999).toInt))
+		  println("timeline length 99.999 percentile: " + sorted((length * 0.99999).toInt))
+		  println("timeline length max: " + sorted.last)
+	  }
 	}
 	
 	private def printMem() {
