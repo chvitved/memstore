@@ -4,7 +4,6 @@ import java.io.File
 import dk.trifork.sdm.importer.takst.TakstImporter
 import java.io.FilenameFilter
 import scala.collection.JavaConversions._
-import com.memstore.entity.ValuePool
 
 object Loader {
   
@@ -91,7 +90,7 @@ object Loader {
 	var lastCePoolSize = 0;
 	var lastValuePoolSize = 0;
 	private def printPools() {
-	  val newValueSize = ValuePool.allValues.size
+	  val newValueSize = ValuePool.size
 	  println("value pool size " + newValueSize)
 	  println("value pool grown " + (newValueSize - lastValuePoolSize))
 	  lastValuePoolSize = newValueSize

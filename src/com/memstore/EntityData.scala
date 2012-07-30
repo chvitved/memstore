@@ -5,7 +5,6 @@ import com.memstore.Types.Entity
 import com.memstore.entity.CompactEntity
 import com.memstore.entity.EntityTimeline
 import com.memstore.index.Index
-import com.memstore.entity.ValuePool
 
 object EntityData{
   def apply(name: String) = new EntityData(name, Map[Any, EntityTimeline]())

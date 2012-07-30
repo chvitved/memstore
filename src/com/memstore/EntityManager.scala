@@ -2,7 +2,6 @@ package com.memstore
 import java.util.Date
 import scala.collection.immutable.SortedMap
 import com.memstore.entity.CompactEntity
-import com.memstore.entity.ValuePool
 
 object EntityManager {
   def apply() = new EntityManager(Map[String, EntityData]())

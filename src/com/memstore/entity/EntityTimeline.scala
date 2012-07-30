@@ -81,7 +81,7 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
     	map + tuple
     }
     delete.foldLeft(m) {(map, key) =>
-      map + (key -> TombStone)
+      map + (key -> new TombStone())
     }
   }
   
@@ -89,5 +89,3 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
       EntityTimeline.get(date, entityName, timeline, Map[String, Any]())
   }
 }
-
-case class TombStone

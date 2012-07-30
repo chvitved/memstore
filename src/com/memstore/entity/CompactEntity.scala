@@ -1,5 +1,6 @@
 package com.memstore.entity
 import java.util.Arrays
+import com.memstore.ValuePool
 
 object CompactEntity {
   
