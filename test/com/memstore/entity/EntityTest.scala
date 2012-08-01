@@ -27,6 +27,33 @@ class EntityTest {
     assertEquals(map2, e3.get(new Date(3000L)))
   }
   
+  @Test
+  def testDelete() {
+    val entity = new EntityTimeline("test")
+    val map = Map[String, Any](("id" -> 2), ("a" -> "hello"))
+    val t1 = new Date(1000L)
+    
+    //add value
+    val e2 = entity + (t1, map)
+    assertEquals(map, e2.get(t1))
+    
+    //delete value
+    val t2 = new Date(2000L)
+    val e3 = e2 - t2
+    assertNull("no value.. it has been deleted", e3.get(new Date()))
+    
+    //add value
+    val map3 = Map[String, Any](("id" -> 2), ("a" -> "hello world"))
+    val t3 = new Date(3000L)
+    val e4 = e3 + (t3, map3)
+    assertEquals(map3, e4.get(t3))
+    
+    //get value for different times
+    assertEquals(map, e4.get(t1))
+    assertNull("no value.. it has been deleted", e4.get(t2))
+    
+  }
+  
   @Test(expected=classOf[Exception])
   def testNewEntitiesMustBeNewest() {
     val entity = new EntityTimeline("test")

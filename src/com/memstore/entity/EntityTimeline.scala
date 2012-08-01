@@ -9,10 +9,11 @@ object EntityTimeline {
       case (eDate, ce) :: tail => {
         if (!date.before(eDate)) {
           //use this entity
-          add(map, ce.get(entityName))
+          if (ce == null) null else add(map, ce.get(entityName))
         }else {
           //we are looking for a value older than the current one in the timeline
-          get(date, entityName, tail, add(map, ce.get(entityName)))
+          val e = if (ce == null) Map[String, Any]() else add(map, ce.get(entityName))  
+          get(date, entityName, tail, e)
         }
       }
       case Nil => null
@@ -46,13 +47,17 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
     		if (date.before(head._1)) {
     			throw new Exception("data added must be the newest");
     		}
-    		val diffMap = diff(head._2, ce)
-    		if (diffMap.isEmpty) {
-    			this
+    		if (head._2 == null) { //last value is a delete
+    		  new EntityTimeline(entityName, (date, ce) :: head :: tail)
     		} else {
-    			Monitor.addDiff(entityName, diffMap)
-    			val ceDiff = CompactEntity(entityName, diffMap)
-    			new EntityTimeline(entityName, (date, ce) :: (head._1, ceDiff) :: tail)
+    			val diffMap = diff(head._2, ce)
+				if (diffMap.isEmpty) {
+					this
+				} else {
+					Monitor.addDiff(entityName, diffMap)
+	    			val ceDiff = CompactEntity(entityName, diffMap)
+	    			new EntityTimeline(entityName, (date, ce) :: (head._1, ceDiff) :: tail)
+				}
     		}
     	  }
     	}
@@ -66,7 +71,7 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
     //we can only remove with a date later than the last one
     if (timeline.head._1.after(date)) 
     	throw new Exception(String.format("date set (%s) for removal was not after the latest date (%s) in the timeline", date, timeline.head._1))
-    new EntityTimeline(entityName, (date, null) :: timeline)
+    new EntityTimeline(entityName, (date, null) :: timeline) //should we use a tombstone instead of null
   }
   
   private def diff(old: CompactEntity, nev: CompactEntity): Entity = {
@@ -81,7 +86,7 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
     	map + tuple
     }
     delete.foldLeft(m) {(map, key) =>
-      map + (key -> new TombStone())
+      map + (key -> TombStone.tombStone)
     }
   }
   

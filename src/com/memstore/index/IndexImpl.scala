@@ -5,7 +5,7 @@ import java.util.Date
 import com.memstore.entity.EntityTimeline
 import com.memstore.Types.Entity
 
-object Index {
+object IndexImpl {
   
   def apply[IndexType<%Ordered[IndexType]](indexMethod: Entity => IndexType) = {
     new IndexImpl(TreeMap[IndexType, DateIndex](), indexMethod)
@@ -19,12 +19,19 @@ class IndexImpl[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIn
   }
   
   def + (date: Date, et: EntityTimeline): IndexImpl[IndexType] = {
-    val key = indexMethod(et.get(date))
-    val newMap = if (key != null) {
-    	val di = map.getOrElse(key, DateIndex()) + (date, et)
-    	map + (key -> di)
-    } else map //TODO we should probably not just throw away null values
-    new IndexImpl(newMap, indexMethod)
+	val key = indexMethod(et.get(date))
+	val prevEntity = et.get(new Date(date.getTime() - 1)) //get the value before the current insert
+    val prviousKey = if (prevEntity == null) null else indexMethod(prevEntity) 
+    if (key != prviousKey) {
+    	if (key != null) {
+    		val di = map.getOrElse(key, DateIndex()) + (date, et)
+    		val newMap = map + (key -> di)
+    		new IndexImpl(newMap, indexMethod)
+    	} else {
+	      this - (date, et) // is null the same as removing an element?
+	    }
+    } else this
+    
   }
   
   def - (date: Date, et: EntityTimeline): IndexImpl[IndexType] = {

@@ -1,22 +1,40 @@
 package com.memstore
 import scala.collection.immutable.SortedMap
 import java.util.Date
-import com.memstore.Types.Entity
+import com.memstore.Types.{Entity, Index}
 import com.memstore.entity.CompactEntity
 import com.memstore.entity.EntityTimeline
-import com.memstore.index.Index
 
 object EntityData{
-  def apply(name: String) = new EntityData(name, Map[Any, EntityTimeline]())
+  def apply(ec: EntityConfig) = {
+    new EntityData(ec.name, Map[Any, EntityTimeline](), setupIndexes(ec.indexes))
+  }
+  
+  private def setupIndexes(ics: Seq[IndexConfig[_]]) : Map[String, Index] = {
+    ics.foldLeft(Map[String, Index]()) {(map, ic) =>
+      map + (ic.name -> ic.emptyIndex)
+    }
+  }
 }
 
-class EntityData private(val name: String, val primaryIndex: Map[Any, EntityTimeline]) {
+class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline], indexes: Map[String, Index]) {
   
   def + (date: Date, entity: Entity) : EntityData = {
     val primaryKey = "_id"
     val value: Any = ValuePool.intern(entity(primaryKey))
     val et = primaryIndex.getOrElse(value, new EntityTimeline(name)) + (date, entity)
-    new EntityData(name, primaryIndex + (value -> et)) 
+    val updatedIndexes = updateIndexes(date, et, indexes)
+    new EntityData(name, primaryIndex + (value -> et), updatedIndexes) 
   }
+  
+  private def updateIndexes(date: Date, et: EntityTimeline, indexes: Map[String, Index]): Map[String, Index] = {
+    indexes.foldLeft(Map[String, Index]()) {(map, t) =>
+      val name = t._1
+      val index = t._2
+      map + (name -> (index + (date, et)))
+    }
+  }
+  
+  
   
 }	

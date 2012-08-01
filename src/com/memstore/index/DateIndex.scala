@@ -16,14 +16,18 @@ class DateIndex private (map: Map[EntityTimeline, List[Mark]]) {
   def +(date: Date, e: EntityTimeline) : DateIndex = {
     validate(date, e)
     val list = map.getOrElse(e, List[Mark]())
+    println("updating index")
     val newList = new Mark(date) :: list 
     new DateIndex(map + (e -> newList))
   }
   
   private def validate(date: Date, e: EntityTimeline) {
     val dateList = map.getOrElse(e, List[Mark]())
-    val first = dateList.head
-    if (first != Nil && date.before(first.date)) throw new Exception(String.format("date %s is before the last date %s", date, first.date))
+    if (!dateList.isEmpty) { 
+    	val first = dateList.head
+    	if (first != Nil && date.before(first.date)) throw new Exception(String.format("date %s is before the last date %s", date, first.date))
+    }  
+    
   }
   
   def -(date: Date, e: EntityTimeline) : DateIndex = {

@@ -9,13 +9,13 @@ object Loader {
   
   val filteredEntitites = Set[String]("Takst", "Tidsenhed", "Pakningsstoerrelsesenhed", "Styrkeenhed")
 
-  def loadPricelists(rootDir: File) : EntityManager = {
+  def loadPricelists(em: EntityManager, rootDir: File) : EntityManager = {
 	  val pricelistDirs = rootDir.listFiles(new FilenameFilter() {
 		  def accept(file: File, name: String) = file.isDirectory && !name.startsWith(".")
 	  })
 
 	  var counter = 1
-	  pricelistDirs.foldLeft(EntityManager()){(em, dir) =>
+	  pricelistDirs.foldLeft(em){(em, dir) =>
 		  println("loading pricelist " + counter)
 		  val em1 = loadPricelist(dir, em) 
 		  checkTimelines(em1)
