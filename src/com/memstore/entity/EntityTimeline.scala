@@ -93,4 +93,6 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
   def get(date: Date) : Entity = {
       EntityTimeline.get(date, entityName, timeline, Map[String, Any]())
   }
+  
+  def getNow() : Entity = get(new Date())
 }

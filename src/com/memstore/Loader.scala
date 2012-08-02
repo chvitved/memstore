@@ -4,6 +4,10 @@ import java.io.File
 import dk.trifork.sdm.importer.takst.TakstImporter
 import java.io.FilenameFilter
 import scala.collection.JavaConversions._
+import com.memstore.entity.EntityTimeline
+import com.memstore.Types.Entity
+import dk.trifork.sdm.model.CompleteDataset
+import java.util.Date
 
 object Loader {
   
@@ -15,9 +19,11 @@ object Loader {
 	  })
 
 	  var counter = 1
+	  var previous: Collection[CompleteDataset[_]] = null
 	  pricelistDirs.foldLeft(em){(em, dir) =>
 		  println("loading pricelist " + counter)
-		  val em1 = loadPricelist(dir, em) 
+		  val (em1, entities) = loadPricelist(dir, em, previous)
+		  previous = entities
 		  checkTimelines(em1)
 		  counter += 1
 		  printMem()
@@ -27,30 +33,51 @@ object Loader {
 	  }
   }
 
-	def loadPricelist(dir: File, em: EntityManager) : EntityManager = {
+	def loadPricelist(dir: File, em: EntityManager, previous: Collection[CompleteDataset[_]]) : (EntityManager, Collection[CompleteDataset[_]]) = {
 	  	val t1 = System.currentTimeMillis()
 		val pricelistElems = TakstImporter.importTakst(dir).getDatasets()
 		val t2 = System.currentTimeMillis()
-		val newEm = pricelistElems.foldLeft(em) {
-		  (em, elements) => 
+
+		val p = if (previous == null) {
+				for(i <- 0 until pricelistElems.size) yield null
+			} else previous
+		
+		if (pricelistElems.size != p.size) throw new Exception(String.format("previous and current pricelist does not contain the same elements. current: %s, previous %s", pricelistElems.size + "", previous + ""))
+		val zippedElemes = pricelistElems.zip(p)
+		
+		val em1 = zippedElemes.foldLeft(em) {
+		  (em, zippedElemes) => 
+		    val elements = zippedElemes._1
+		    val previousElements = zippedElemes._2
 		    val date = elements.getValidFrom().getTime()
-		    ObjectParser(elements.getEntities().toSet) match {
-		      case (name, entities) => {
-		    	  if (entities.isEmpty || filter(name)) {
-		    		  em
-		    	  } else {
-		    	    entities.foldLeft(em) { (em, e) =>
-		    	     	em.add(name, date, e)
-		    	    }
-		    	  }
-		      }
-		    }
+		    val (name, entities) = ObjectParser(elements.getEntities().toSet)
+		    if (entities.isEmpty || filter(name)) {
+		    	em
+		    } else {
+		    	val em1 = entities.foldLeft(em) { (em, e) =>
+    	     		em.add(name, date, e)
+	    	    }
+	    	    if (previousElements != null) {
+	    	     	val oldParsedElements = ObjectParser(previousElements.getEntities().toSet)._2
+	    	     	findAndRemoveDeletedEntities(oldParsedElements, entities, date, name, em1)
+	    	    } else em1
+    	  }
 		}
 	  	val t3 = System.currentTimeMillis()
 	  	println("time loading pricelist " + (t3-t1))
 	  	println("time parsing pricelist with sdm module " + (t2-t1))
 	  	println("time inserting in memstore " + (t3-t2))
-	  	newEm
+	  	(em1, pricelistElems)
+	}
+	
+	private def findAndRemoveDeletedEntities(old: Set[Entity], nev: Set[Entity], date: Date, entityName: String, em: EntityManager): EntityManager = {
+	  val nevIds = nev.map(_("_id"))
+	  val oldIds = old.map(_("_id"))
+	  val keysToDelete = oldIds -- nevIds
+	  
+	  keysToDelete.foldLeft(em) {(em, key) =>
+	  	em.remove(entityName, date, key)
+	  }
 	}
 	
 	private def filter(name: String): Boolean = {

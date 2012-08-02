@@ -27,6 +27,23 @@ class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline
     new EntityData(name, primaryIndex + (value -> et), updatedIndexes) 
   }
   
+  def - (date: Date, id: Any) : EntityData = {
+    val et = primaryIndex(id) - date
+    
+    val newPrimaryIndex = primaryIndex + (id -> et)
+    
+    val ni = indexes.foldLeft(Map[String, Index]()) {(indexMap, tuple) =>
+      val iName = tuple._1
+      val i = tuple._2
+      indexMap + (iName -> (i - (date, et)))
+    }
+    new EntityData(name, newPrimaryIndex, ni)
+  }
+  
+  def apply(id: Any): Entity = primaryIndex(id).getNow()
+  
+  def apply(id: Any, date: Date): Entity = primaryIndex(id).get(date)
+  
   private def updateIndexes(date: Date, et: EntityTimeline, indexes: Map[String, Index]): Map[String, Index] = {
     indexes.foldLeft(Map[String, Index]()) {(map, t) =>
       val name = t._1

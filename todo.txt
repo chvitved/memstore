@@ -11,4 +11,5 @@ prim¾r indekser skal g¿res p¾nere... skal nok v¾re en del af entityconfig
 
 outstanding unit test
 test tombstones in entitytimeline
+index tests
 entitytimeline removal

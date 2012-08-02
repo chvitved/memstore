@@ -26,12 +26,18 @@ class EntityManagerTest {
     val em2 = em1Mark.add("test", t3,e2)
     assertFetchById(filter(e2), em2, 2, t3)
     
+    val t4 = new Date(40000)
+    val em3 = em2.remove("test", t4, 1)
+    assertNull(em3.get("test", 1, t4))
+    
   }
+  
+  
   
   private def filter(map: Map[String, Any]) : Map[String, Any] = map.filter(t => !t._1.startsWith("_"))
   
   private def assertFetchById(expectedEntity: Map[String, Any], em: EntityManager, value: Any, time: Date) {
-    val foundEntity = em.get("test").primaryIndex(value).get(time)
+    val foundEntity = em.get("test", value, time)
     assertEquals(expectedEntity, foundEntity)
   } 
 }
