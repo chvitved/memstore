@@ -36,7 +36,6 @@ class IndexImpl[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIn
   
   def - (date: Date, et: EntityTimeline): IndexImpl[IndexType] = {
     //key is previous value in index
-    println("removing from index")
     val key = indexMethod(et.get(new Date(date.getTime() - 1)))
     val di = map(key)  - (date, et)
     val newMap = map + (key -> di)

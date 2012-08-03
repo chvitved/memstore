@@ -16,7 +16,6 @@ class DateIndex private (map: Map[EntityTimeline, List[Mark]]) {
   def +(date: Date, e: EntityTimeline) : DateIndex = {
     validate(date, e)
     val list = map.getOrElse(e, List[Mark]())
-    println("updating index")
     val newList = new Mark(date) :: list 
     new DateIndex(map + (e -> newList))
   }

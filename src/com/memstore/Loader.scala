@@ -49,19 +49,16 @@ object Loader {
 		  (em, zippedElemes) => 
 		    val elements = zippedElemes._1
 		    val previousElements = zippedElemes._2
-		    val date = elements.getValidFrom().getTime()
 		    val (name, entities) = ObjectParser(elements.getEntities().toSet)
 		    if (entities.isEmpty || filter(name)) {
 		    	em
 		    } else {
-		    	val em1 = entities.foldLeft(em) { (em, e) =>
-    	     		em.add(name, date, e)
-	    	    }
-	    	    if (previousElements != null) {
-	    	     	val oldParsedElements = ObjectParser(previousElements.getEntities().toSet)._2
-	    	     	findAndRemoveDeletedEntities(oldParsedElements, entities, date, name, em1)
-	    	    } else em1
-    	  }
+		    	val oldParsedElements = 
+		    		if (previousElements == null) Set[Entity]() 
+		    		else ObjectParser(previousElements.getEntities().toSet)._2 
+    	     	val date = elements.getValidFrom().getTime()
+		    	updateStore(oldParsedElements, entities, date, name, em)
+		    }
 		}
 	  	val t3 = System.currentTimeMillis()
 	  	println("time loading pricelist " + (t3-t1))
@@ -70,13 +67,17 @@ object Loader {
 	  	(em1, pricelistElems)
 	}
 	
-	private def findAndRemoveDeletedEntities(old: Set[Entity], nev: Set[Entity], date: Date, entityName: String, em: EntityManager): EntityManager = {
-	  val nevIds = nev.map(_("_id"))
-	  val oldIds = old.map(_("_id"))
-	  val keysToDelete = oldIds -- nevIds
-	  
-	  keysToDelete.foldLeft(em) {(em, key) =>
+	private def updateStore(old: Set[Entity], nev: Set[Entity], date: Date, entityName: String, em: EntityManager): EntityManager = {
+	  //delete
+	  val keysToDelete = old.map(_("_id")) -- nev.map(_("_id"))
+	  val em1 = keysToDelete.foldLeft(em) {(em, key) =>
 	  	em.remove(entityName, date, key)
+	  }
+	  
+	  //insert
+	  nev.foldLeft(em1) {(em, e) => 
+	    if (!old.contains(e)) em.add(entityName, date, e) 
+	    else em
 	  }
 	}
 	
