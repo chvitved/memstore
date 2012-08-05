@@ -8,9 +8,10 @@ class EntityTest {
   
   @Test
   def testTemporalData() {
-    val entity = new EntityTimeline("test")
-    val map1 = Map[String, Any](("id" -> 2), ("a" -> "hello"), ("b" -> "world"), ("c" -> 5L))
-    val map2 = Map[String, Any](("id" -> 2), ("a" -> "hello1"), ("b" -> "world"))
+    val id = 1
+    val entity = new EntityTimeline("test", id)
+    val map1 = Map[String, Any](("id" -> id), ("a" -> "hello"), ("b" -> "world"), ("c" -> 5L))
+    val map2 = Map[String, Any](("id" -> id), ("a" -> "hello1"), ("b" -> "world"))
     val t1 = new Date(1000L) 
     val t2 = new Date(2000L)
     val now = new Date()
@@ -29,8 +30,9 @@ class EntityTest {
   
   @Test
   def testDelete() {
-    val entity = new EntityTimeline("test")
-    val map = Map[String, Any](("id" -> 2), ("a" -> "hello"))
+    val id = 1
+    val entity = new EntityTimeline("test", id)
+    val map = Map[String, Any](("id" -> id), ("a" -> "hello"))
     val t1 = new Date(1000L)
     
     //add value
@@ -43,7 +45,7 @@ class EntityTest {
     assertNull("no value.. it has been deleted", e3.get(new Date()))
     
     //add value
-    val map3 = Map[String, Any](("id" -> 2), ("a" -> "hello world"))
+    val map3 = Map[String, Any](("id" -> id), ("a" -> "hello world"))
     val t3 = new Date(3000L)
     val e4 = e3 + (t3, map3)
     assertEquals(map3, e4.get(t3))
@@ -56,9 +58,10 @@ class EntityTest {
   
   @Test(expected=classOf[Exception])
   def testNewEntitiesMustBeNewest() {
-    val entity = new EntityTimeline("test")
-    val map1 = Map[String, Any](("id" -> 2))
-    val map2 = Map[String, Any](("id" -> 2))
+    val id = "a"
+    val entity = new EntityTimeline("test", id)
+    val map1 = Map[String, Any](("id" -> id))
+    val map2 = Map[String, Any](("id" -> id))
     
     val t1 = new Date(2000L)
     val t2 = new Date(1000L)

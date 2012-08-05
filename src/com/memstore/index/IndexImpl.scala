@@ -42,4 +42,11 @@ class IndexImpl[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIn
     new IndexImpl(newMap, indexMethod)
   }
   
+  def range(date: Date, from: IndexType, until: IndexType) : Set[Entity] = {
+    val dateIndexes = map.range(from, until).values
+    dateIndexes.foldLeft(Set[Entity]()){(set, di) =>
+      set ++ di.get(date)
+    }
+  }
+  
 }

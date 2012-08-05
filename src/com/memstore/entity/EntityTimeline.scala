@@ -32,9 +32,9 @@ object EntityTimeline {
   }
 }
 
-class EntityTimeline private(entityName: String, val timeline: List[(Date, CompactEntity)]) {
+class EntityTimeline private(val entityName: String, val id: Any, val timeline: List[(Date, CompactEntity)]) {
   
-  def this(entityName: String) = this(entityName, List[(Date, CompactEntity)]())
+  def this(entityName: String, id: Any) = this(entityName, id, List[(Date, CompactEntity)]())
   
   def + (date: Date, entity: Entity) : EntityTimeline = {
     val current = get(date)
@@ -42,13 +42,13 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
     else {
     	val ce = CompactEntity(entityName, entity)
     	timeline match {
-    	  case Nil =>  new EntityTimeline(entityName, (date, ce) :: timeline)
+    	  case Nil =>  new EntityTimeline(entityName, id, (date, ce) :: timeline)
     	  case head :: tail => {
     		if (date.before(head._1)) {
     			throw new Exception("data added must be the newest");
     		}
     		if (head._2 == null) { //last value is a delete
-    		  new EntityTimeline(entityName, (date, ce) :: head :: tail)
+    		  new EntityTimeline(entityName, id, (date, ce) :: head :: tail)
     		} else {
     			val diffMap = diff(head._2, ce)
 				if (diffMap.isEmpty) {
@@ -56,7 +56,7 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
 				} else {
 					Monitor.addDiff(entityName, diffMap)
 	    			val ceDiff = CompactEntity(entityName, diffMap)
-	    			new EntityTimeline(entityName, (date, ce) :: (head._1, ceDiff) :: tail)
+	    			new EntityTimeline(entityName, id, (date, ce) :: (head._1, ceDiff) :: tail)
 				}
     		}
     	  }
@@ -71,7 +71,7 @@ class EntityTimeline private(entityName: String, val timeline: List[(Date, Compa
     //we can only remove with a date later than the last one
     if (timeline.head._1.after(date)) 
     	throw new Exception(String.format("date set (%s) for removal was not after the latest date (%s) in the timeline", date, timeline.head._1))
-    new EntityTimeline(entityName, (date, null) :: timeline) //should we use a tombstone instead of null
+    new EntityTimeline(entityName, id, (date, null) :: timeline) //should we use a tombstone instead of null
   }
   
   private def diff(old: CompactEntity, nev: CompactEntity): Entity = {

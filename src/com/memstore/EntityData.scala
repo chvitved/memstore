@@ -17,12 +17,12 @@ object EntityData{
   }
 }
 
-class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline], indexes: Map[String, Index]) {
+class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline], val indexes: Map[String, Index]) {
   
   def + (date: Date, entity: Entity) : EntityData = {
     val primaryKey = "_id"
     val value: Any = ValuePool.intern(entity(primaryKey))
-    val et = primaryIndex.getOrElse(value, new EntityTimeline(name)) + (date, entity)
+    val et = primaryIndex.getOrElse(value, new EntityTimeline(name, value)) + (date, entity)
     val updatedIndexes = updateIndexes(date, et, indexes)
     new EntityData(name, primaryIndex + (value -> et), updatedIndexes) 
   }

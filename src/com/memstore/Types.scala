@@ -4,5 +4,5 @@ import com.memstore.index.IndexImpl
 object Types {
 
   type Entity = Map[String, Any]
-  type Index = IndexImpl[Ordered[_]]
+  type Index = IndexImpl[AnyRef]
 }
