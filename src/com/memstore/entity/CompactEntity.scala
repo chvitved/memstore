@@ -1,6 +1,7 @@
 package com.memstore.entity
 import java.util.Arrays
 import com.memstore.ValuePool
+import com.memstore.Types.Entity
 
 object CompactEntity {
   
@@ -8,10 +9,10 @@ object CompactEntity {
 	var map = Map[String, Map[String, Int]]()
 	var reverseMap = Map[String, Map[Int, String]]()
 	
-	def apply(entityName: String, entityAsMap: Map[String, Any]): CompactEntity = {
-	  validate(entityName, entityAsMap)
+	def apply(entityName: String, entity: Entity): CompactEntity = {
+	  validate(entityName, entity)
 	  val eName = entityName.intern()
-	  val filteredMap = entityAsMap.filter(t => !t._1.startsWith("_"))
+	  val filteredMap = entity.filter(t => !(t._1.startsWith("_") || t._2 == null))
       val indexValueTuple = for((name, value) <- filteredMap) yield {
         val eMap = map.getOrElse(eName, Map())
         eMap.get(name) match {

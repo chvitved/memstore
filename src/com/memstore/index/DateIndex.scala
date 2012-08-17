@@ -57,7 +57,7 @@ class DateIndex private (map: Map[EntityNameAndId, EntityTimelineWithDateList]) 
     map.values.foldLeft(Set[Entity]()) {(set, entityTimelineWithDateList) =>
       val et = entityTimelineWithDateList._1
       val dateList = entityTimelineWithDateList._2
-      if(existsInDateList(date, dateList)) set + et.get(date)
+      if(existsInDateList(date, dateList)) set + et.get(date).get // could be implemented better
       else set
     }
   }

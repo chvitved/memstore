@@ -8,6 +8,7 @@ Vi slete v¾rdier. for at g¿re det er vi n¿dt til at sammenligne med forrige taks
 
 prim¾r indekser skal g¿res p¾nere... skal nok v¾re en del af entityconfig
 
+der er en query pakke med klasser i som slet ikke bruges endnu
 
 outstanding unit test
 test tombstones in entitytimeline

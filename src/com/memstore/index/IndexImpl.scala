@@ -19,27 +19,39 @@ class IndexImpl[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIn
   }
   
   def + (date: Date, et: EntityTimeline): IndexImpl[IndexType] = {
-	val key = indexMethod(et.get(date))
-	val prevEntity = et.get(new Date(date.getTime() - 1)) //get the value before the current insert
-    val prviousKey = if (prevEntity == null) null else indexMethod(prevEntity) 
-    if (key != prviousKey) {
-    	if (key != null) {
-    		val di = map.getOrElse(key, DateIndex()) + (date, et)
-    		val newMap = map + (key -> di)
-    		new IndexImpl(newMap, indexMethod)
-    	} else {
-	      this - (date, et) // is null the same as removing an element?
-	    }
-    } else this
-    
+    et.get(date) match {
+      case None => throw new Exception("there should be an entity when adding one")
+      case Some(e) => {
+    	val key = indexMethod(e)
+    	val prevEntity = et.get(new Date(date.getTime() - 1)) //get the value before the current insert
+    	val changed =  prevEntity match {
+    	  case None => true
+    	  case Some(e) => indexMethod(e) != key
+    	}
+	    if (changed) {
+	    	if (key != null) { //how should we handle null
+	    		val di = map.getOrElse(key, DateIndex()) + (date, et)
+	    		val newMap = map + (key -> di)
+	    		new IndexImpl(newMap, indexMethod)
+	    	} else {
+		      this - (date, et) // is null the same as removing an element?
+		    }
+	    } else this
+      }
+    }
   }
   
   def - (date: Date, et: EntityTimeline): IndexImpl[IndexType] = {
     //key is previous value in index
-    val key = indexMethod(et.get(new Date(date.getTime() - 1)))
-    val di = map(key)  - (date, et)
-    val newMap = map + (key -> di)
-    new IndexImpl(newMap, indexMethod)
+    et.get(new Date(date.getTime() - 1)) match {
+      case None => throw new Exception("entity is already deleted") // should we not throw an exception
+      case Some(e) => {
+    	val key = indexMethod(e)
+	    val di = map(key)  - (date, et)
+	    val newMap = map + (key -> di)
+	    new IndexImpl(newMap, indexMethod)
+      }
+    }
   }
   
   def range(date: Date, from: IndexType, until: IndexType) : Set[Entity] = {

@@ -1,8 +1,10 @@
 package com.memstore
+
 import org.junit.Test
-import java.util.Date
 import org.junit.Before
 import org.junit.Assert._
+import java.util.Date
+import com.memstore.Types.Entity
 
 class EntityManagerTest {
   
@@ -28,16 +30,23 @@ class EntityManagerTest {
     
     val t4 = new Date(40000)
     val em3 = em2.remove("test", t4, 1)
-    assertNull(em3.get("test", 1, t4))
-    
+    assertEquals(None, em3.get("test", 1, t4))
   }
   
+  @Test
+  def testNulls() {
+    val em = EntityManager()
+    
+    val t1 = new Date(10000)
+    val e1 = Map[String, Any](("_id" -> 1), ("a" -> null), ("b" -> "hello"))
+    val em1 = em.add("test", t1,e1)
+    assertFetchById(filter(e1), em1, 1, t1)
+  }
   
+  private def filter(map: Map[String, Any]) : Map[String, Any] = map.filter(t => !(t._1.startsWith("_") || t._2 == null))
   
-  private def filter(map: Map[String, Any]) : Map[String, Any] = map.filter(t => !t._1.startsWith("_"))
-  
-  private def assertFetchById(expectedEntity: Map[String, Any], em: EntityManager, value: Any, time: Date) {
-    val foundEntity = em.get("test", value, time)
+  private def assertFetchById(expectedEntity: Entity, em: EntityManager, value: Any, time: Date) {
+    val foundEntity = em.get("test", value, time).get
     assertEquals(expectedEntity, foundEntity)
   } 
 }

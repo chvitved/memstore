@@ -40,9 +40,18 @@ class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline
     new EntityData(name, newPrimaryIndex, ni)
   }
   
-  def apply(id: Any): Entity = primaryIndex(id).getNow()
+  def apply(id: Any): Option[Entity] = primaryIndex(id).getNow()
   
-  def apply(id: Any, date: Date): Entity = primaryIndex(id).get(date)
+  def apply(id: Any, date: Date): Option[Entity] = primaryIndex(id).get(date)
+  
+  def fullScan(date: Date, predicate: Entity => Boolean): Set[Entity] = {
+    //primaryIndex.values.filter(et => et.get(date) != null).map(et => et.get(date)).toSet
+    //primaryIndex.values.collect{case et if(et.get(date) != null) => et.get(date)}.toSet
+    //primaryIndex.values.flatMap(_.get(date)).toSet
+    //primaryIndex.values.collect{case Some(et) if(et.get(date) != null) => et.get(date)}.toSet
+    val es = for (et <- primaryIndex.values; e <- et.get(date); if (predicate(e))) yield e
+    es.toSet
+  }
   
   private def updateIndexes(date: Date, et: EntityTimeline, indexes: Map[String, Index]): Map[String, Index] = {
     indexes.foldLeft(Map[String, Index]()) {(map, t) =>

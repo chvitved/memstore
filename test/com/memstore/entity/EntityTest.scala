@@ -16,16 +16,16 @@ class EntityTest {
     val t2 = new Date(2000L)
     val now = new Date()
     
-    assertEquals("no value at this point in time", null, entity.get(now))
+    assertEquals("no value at this point in time", None, entity.get(now))
     val e2 = entity + (t1, map1)
-    assertEquals("no value at this point in time", null, e2.get(new Date(500L)))
-    assertEquals(map1, e2.get(now))
+    assertEquals("no value at this point in time", None, e2.get(new Date(500L)))
+    assertEquals(Some(map1), e2.get(now))
     
     val e3 = e2 + (t2, map2)
     
-    assertEquals(map1, e3.get(new Date(1500L)))
-    assertEquals(map2, e3.get(new Date(2000L)))
-    assertEquals(map2, e3.get(new Date(3000L)))
+    assertEquals(Some(map1), e3.get(new Date(1500L)))
+    assertEquals(Some(map2), e3.get(new Date(2000L)))
+    assertEquals(Some(map2), e3.get(new Date(3000L)))
   }
   
   @Test
@@ -37,22 +37,22 @@ class EntityTest {
     
     //add value
     val e2 = entity + (t1, map)
-    assertEquals(map, e2.get(t1))
+    assertEquals(map, e2.get(t1).get)
     
     //delete value
     val t2 = new Date(2000L)
     val e3 = e2 - t2
-    assertNull("no value.. it has been deleted", e3.get(new Date()))
+    assertEquals("no value.. it has been deleted", None, e3.get(new Date()))
     
     //add value
     val map3 = Map[String, Any](("id" -> id), ("a" -> "hello world"))
     val t3 = new Date(3000L)
     val e4 = e3 + (t3, map3)
-    assertEquals(map3, e4.get(t3))
+    assertEquals(Some(map3), e4.get(t3))
     
     //get value for different times
-    assertEquals(map, e4.get(t1))
-    assertNull("no value.. it has been deleted", e4.get(t2))
+    assertEquals(Some(map), e4.get(t1))
+    assertEquals("no value.. it has been deleted", None, e4.get(t2))
     
   }
   

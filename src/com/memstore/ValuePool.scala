@@ -50,7 +50,7 @@ object ValuePool {
     	
   }
   
-  def shouldPoolValue(value: Any) = {
+  private def shouldPoolValue(value: Any) = {
 	  types.exists(_ == value.getClass)
   }
   

@@ -4,19 +4,25 @@ import com.memstore.Types.Entity
 import com.memstore.Monitor
 
 object EntityTimeline {
-  private def get(date: Date, entityName: String, timeline: List[(Date, CompactEntity)], map: Entity) : Entity = {
+  private def get(date: Date, entityName: String, timeline: List[(Date, Option[CompactEntity])], map: Entity) : Option[Entity] = {
     timeline match {
       case (eDate, ce) :: tail => {
         if (!date.before(eDate)) {
           //use this entity
-          if (ce == null) null else add(map, ce.get(entityName))
+          ce match {
+            case Some(ce) => Some(add(map, ce.get(entityName)))
+            case None => None
+          }
         }else {
           //we are looking for a value older than the current one in the timeline
-          val e = if (ce == null) Map[String, Any]() else add(map, ce.get(entityName))  
+          val e: Entity = ce match {
+            case Some(ce) => add(map, ce.get(entityName))
+            case None => Map[String, AnyRef]()
+          }
           get(date, entityName, tail, e)
         }
       }
-      case Nil => null
+      case Nil => None
     }
   }
   
@@ -32,9 +38,9 @@ object EntityTimeline {
   }
 }
 
-class EntityTimeline private(val entityName: String, val id: Any, val timeline: List[(Date, CompactEntity)]) {
+class EntityTimeline private(val entityName: String, val id: Any, val timeline: List[(Date, Option[CompactEntity])]) {
   
-  def this(entityName: String, id: Any) = this(entityName, id, List[(Date, CompactEntity)]())
+  def this(entityName: String, id: Any) = this(entityName, id, List[(Date, Option[CompactEntity])]())
   
   def + (date: Date, entity: Entity) : EntityTimeline = {
     val current = get(date)
@@ -42,22 +48,23 @@ class EntityTimeline private(val entityName: String, val id: Any, val timeline: 
     else {
     	val ce = CompactEntity(entityName, entity)
     	timeline match {
-    	  case Nil =>  new EntityTimeline(entityName, id, (date, ce) :: timeline)
+    	  case Nil =>  new EntityTimeline(entityName, id, (date, Some(ce)) :: timeline)
     	  case head :: tail => {
     		if (date.before(head._1)) {
     			throw new Exception("data added must be the newest");
     		}
-    		if (head._2 == null) { //last value is a delete
-    		  new EntityTimeline(entityName, id, (date, ce) :: head :: tail)
-    		} else {
-    			val diffMap = diff(head._2, ce)
+    		head._2 match {
+    		  case None => new EntityTimeline(entityName, id, (date, Some(ce)) :: head :: tail)
+    		  case Some(h) => {
+    		    val diffMap = diff(h, ce)
 				if (diffMap.isEmpty) {
 					this
 				} else {
 					Monitor.addDiff(entityName, diffMap)
 	    			val ceDiff = CompactEntity(entityName, diffMap)
-	    			new EntityTimeline(entityName, id, (date, ce) :: (head._1, ceDiff) :: tail)
+	    			new EntityTimeline(entityName, id, (date, Some(ce)) :: (head._1, Some(ceDiff)) :: tail)
 				}
+    		  } 
     		}
     	  }
     	}
@@ -65,13 +72,13 @@ class EntityTimeline private(val entityName: String, val id: Any, val timeline: 
   }
   
   def - (date: Date) :EntityTimeline = {
-    if (timeline.isEmpty || timeline.head._2 == null) {
+    if (timeline.isEmpty || timeline.head._2 == None) {
       throw new Exception(String.format("no value exists in the timeline", date, timeline.head._1))
     }
     //we can only remove with a date later than the last one
     if (timeline.head._1.after(date)) 
     	throw new Exception(String.format("date set (%s) for removal was not after the latest date (%s) in the timeline", date, timeline.head._1))
-    new EntityTimeline(entityName, id, (date, null) :: timeline) //should we use a tombstone instead of null
+    new EntityTimeline(entityName, id, (date, None) :: timeline)
   }
   
   private def diff(old: CompactEntity, nev: CompactEntity): Entity = {
@@ -90,9 +97,9 @@ class EntityTimeline private(val entityName: String, val id: Any, val timeline: 
     }
   }
   
-  def get(date: Date) : Entity = {
+  def get(date: Date) : Option[Entity] = {
       EntityTimeline.get(date, entityName, timeline, Map[String, Any]())
   }
   
-  def getNow() : Entity = get(new Date())
+  def getNow() : Option[Entity] = get(new Date())
 }

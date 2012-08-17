@@ -37,9 +37,13 @@ class EntityManager private(val map: Map[String, EntityData]) {
   	  map.getOrElse(name, EntityData(new EntityConfig(name)))
   	}
   	
-  	def get(entity: String, id: Any, date: Date) : Entity = get(entity)(id, date)
+  	def get(entity: String, id: Any, date: Date): Option[Entity] = get(entity)(id, date)
   	
   	def get(entity: String): EntityData = {
   	  map(entity)
+  	}
+  	
+  	def fullScan(name: String, date: Date, predicate: Entity => Boolean): Set[Entity] = {
+  	  get(name).fullScan(date, predicate)
   	}
 }
