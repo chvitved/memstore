@@ -4,7 +4,6 @@ import com.memstore.ValuePool
 import com.memstore.Types.Entity
 
 object CompactEntity {
-  
 	
 	var map = Map[String, Map[String, Int]]()
 	var reverseMap = Map[String, Map[Int, String]]()
@@ -61,9 +60,9 @@ object CompactEntity {
 
 class CompactEntity private(val name: String, private val indexBitmap: Int, private val valueArray: Array[Any]) {
   
-  override def toString() = get(name).toString
+  override def toString() = get.toString
   
-  def get(name: String) : Map[String, Any] = {
+  def get : Map[String, Any] = {
     CompactEntity.get(name, this)
   }
   

@@ -10,13 +10,13 @@ object EntityTimeline {
         if (!date.before(eDate)) {
           //use this entity
           ce match {
-            case Some(ce) => Some(add(map, ce.get(entityName)))
+            case Some(ce) => Some(add(map, ce.get))
             case None => None
           }
         }else {
           //we are looking for a value older than the current one in the timeline
           val e: Entity = ce match {
-            case Some(ce) => add(map, ce.get(entityName))
+            case Some(ce) => add(map, ce.get)
             case None => Map[String, AnyRef]()
           }
           get(date, entityName, tail, e)
@@ -82,8 +82,8 @@ class EntityTimeline private(val entityName: String, val id: Any, val timeline: 
   }
   
   private def diff(old: CompactEntity, nev: CompactEntity): Entity = {
-    val oldSet = old.get(entityName).elements.toSet
-    val newSet = nev.get(entityName).elements.toSet
+    val oldSet = old.get.elements.toSet
+    val newSet = nev.get.elements.toSet
     val add = oldSet -- newSet
     val addKeys = add.map(_._1)
     val deleteKeys = (newSet -- oldSet).map(_._1)

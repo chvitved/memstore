@@ -73,7 +73,7 @@ class EntityTest {
   def testFilterUndercoreValues() {
     val m = Map[String, Any](("a" -> 2), ("b" -> "hello"), ("_id" -> "hello"))
     val ce = CompactEntity("test", m)
-    assertFalse(ce.get("test").contains("_id"))
+    assertFalse(ce.get.contains("_id"))
   }
 
 }
