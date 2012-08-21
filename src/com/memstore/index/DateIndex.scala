@@ -10,25 +10,22 @@ import com.memstore.index.DateIndex._
  */
 object DateIndex {
   
-  def apply(): DateIndex = new DateIndex(Map[EntityNameAndId, EntityTimelineWithDateList]())
+  def apply(): DateIndex = new DateIndex(Map[Any, EntityTimelineWithDateList]())
   
-  type EntityNameAndId = (String, Any)
   type EntityTimelineWithDateList = (EntityTimeline, List[Mark])
 }
 
-class DateIndex private (map: Map[EntityNameAndId, EntityTimelineWithDateList]) {
+class DateIndex private (map: Map[Any, EntityTimelineWithDateList]) {
 
   def +(date: Date, e: EntityTimeline) : DateIndex = {
     validate(date, e)
-    val key = etKey(e)
     val etWithList = get(e)
     val newEtWL = (e, new Mark(date) :: etWithList._2)
-    new DateIndex(map + (key -> newEtWL))
+    new DateIndex(map + (e.id -> newEtWL))
   }
   
-  private def etKey(e: EntityTimeline) = (e.entityName,e.id) 
   private def emptyMapValue(e: EntityTimeline) = (e, List[Mark]())
-  private def get(e: EntityTimeline) = map.getOrElse(etKey(e), emptyMapValue(e))
+  private def get(e: EntityTimeline) = map.getOrElse(e.id, emptyMapValue(e))
   
   private def validate(date: Date, e: EntityTimeline) {
     val dateList = get(e)._2
@@ -41,7 +38,7 @@ class DateIndex private (map: Map[EntityNameAndId, EntityTimelineWithDateList]) 
   
   def -(date: Date, e: EntityTimeline) : DateIndex = {
     validate(date, e)
-    val key = etKey(e)
+    val key = e.id
     map.get(key) match {
       case Some(entityTimelineWithDateList) => {
         val dateList = entityTimelineWithDateList._2

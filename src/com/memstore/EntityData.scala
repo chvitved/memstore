@@ -1,5 +1,4 @@
 package com.memstore
-import scala.collection.immutable.SortedMap
 import java.util.Date
 import com.memstore.Types.{Entity, Index}
 import com.memstore.entity.CompactEntity
@@ -22,7 +21,7 @@ class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline
   def + (date: Date, entity: Entity) : EntityData = {
     val primaryKey = "_id"
     val value: Any = ValuePool.intern(entity(primaryKey))
-    val et = primaryIndex.getOrElse(value, new EntityTimeline(name, value)) + (date, entity)
+    val et = primaryIndex.getOrElse(value, new EntityTimeline(value)) + (date, entity, name)
     val updatedIndexes = updateIndexes(date, et, indexes)
     new EntityData(name, primaryIndex + (value -> et), updatedIndexes) 
   }
