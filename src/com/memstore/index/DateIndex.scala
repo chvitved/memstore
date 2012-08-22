@@ -4,6 +4,7 @@ import java.util.Date
 import com.memstore.entity.EntityTimeline
 import com.memstore.Types.Entity
 import com.memstore.index.DateIndex._
+import com.memstore.Types.EntityTimelineWithId
 
 /**
  * This is a very naive first implementation
@@ -17,17 +18,17 @@ object DateIndex {
 
 class DateIndex private (map: Map[Any, EntityTimelineWithDateList]) {
 
-  def +(date: Date, e: EntityTimeline) : DateIndex = {
+  def +(date: Date, e: EntityTimelineWithId) : DateIndex = {
     validate(date, e)
     val etWithList = get(e)
-    val newEtWL = (e, new Mark(date) :: etWithList._2)
+    val newEtWL = (e.et, new Mark(date) :: etWithList._2)
     new DateIndex(map + (e.id -> newEtWL))
   }
   
-  private def emptyMapValue(e: EntityTimeline) = (e, List[Mark]())
-  private def get(e: EntityTimeline) = map.getOrElse(e.id, emptyMapValue(e))
+  private def emptyMapValue(e: EntityTimelineWithId): EntityTimelineWithDateList = (e.et, List[Mark]())
+  private def get(e: EntityTimelineWithId) = map.getOrElse(e.id, emptyMapValue(e))
   
-  private def validate(date: Date, e: EntityTimeline) {
+  private def validate(date: Date, e: EntityTimelineWithId) {
     val dateList = get(e)._2
     if (!dateList.isEmpty) { 
     	val first = dateList.head
@@ -36,15 +37,14 @@ class DateIndex private (map: Map[Any, EntityTimelineWithDateList]) {
     
   }
   
-  def -(date: Date, e: EntityTimeline) : DateIndex = {
+  def -(date: Date, e: EntityTimelineWithId) : DateIndex = {
     validate(date, e)
-    val key = e.id
-    map.get(key) match {
+    map.get(e.id) match {
       case Some(entityTimelineWithDateList) => {
         val dateList = entityTimelineWithDateList._2
         if (dateList.head.isInstanceOf[TombstoneMark]) this
         val newList = new TombstoneMark(date) :: dateList
-        new DateIndex(map + (key -> (e, newList)))
+        new DateIndex(map + (e.id -> (e.et, newList)))
       }
       case None => this 
     }

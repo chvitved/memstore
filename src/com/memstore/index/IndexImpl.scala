@@ -4,6 +4,7 @@ import scala.collection.immutable.TreeMap
 import java.util.Date
 import com.memstore.entity.EntityTimeline
 import com.memstore.Types.Entity
+import com.memstore.Types.EntityTimelineWithId
 
 object IndexImpl {
   
@@ -18,12 +19,12 @@ class IndexImpl[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIn
     map.getOrElse(key, DateIndex())
   }
   
-  def + (date: Date, et: EntityTimeline): IndexImpl[IndexType] = {
-    et.get(date) match {
+  def + (date: Date, et: EntityTimelineWithId): IndexImpl[IndexType] = {
+    et.et.get(date) match {
       case None => throw new Exception("there should be an entity when adding one")
-      case Some(e) => {
+      case Some(e: Entity) => {
     	val key = indexMethod(e)
-    	val prevEntity = et.get(new Date(date.getTime() - 1)) //get the value before the current insert
+    	val prevEntity = et.et.get(new Date(date.getTime() - 1)) //get the value before the current insert
     	val changed =  prevEntity match {
     	  case None => true
     	  case Some(e) => indexMethod(e) != key
@@ -41,9 +42,9 @@ class IndexImpl[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIn
     }
   }
   
-  def - (date: Date, et: EntityTimeline): IndexImpl[IndexType] = {
+  def - (date: Date, et: EntityTimelineWithId): IndexImpl[IndexType] = {
     //key is previous value in index
-    et.get(new Date(date.getTime() - 1)) match {
+    et.et.get(new Date(date.getTime() - 1)) match {
       case None => throw new Exception("entity is already deleted") // should we not throw an exception
       case Some(e) => {
     	val key = indexMethod(e)

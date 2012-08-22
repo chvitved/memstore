@@ -3,6 +3,8 @@ import java.util.Date
 import com.memstore.Types.{Entity, Index}
 import com.memstore.entity.CompactEntity
 import com.memstore.entity.EntityTimeline
+import com.memstore.entity.ET
+import com.memstore.Types.EntityTimelineWithId
 
 object EntityData{
   def apply(ec: EntityConfig) = {
@@ -20,10 +22,10 @@ class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline
   
   def + (date: Date, entity: Entity) : EntityData = {
     val primaryKey = "_id"
-    val value: Any = ValuePool.intern(entity(primaryKey))
-    val et = primaryIndex.getOrElse(value, new EntityTimeline(value)) + (date, entity, name)
-    val updatedIndexes = updateIndexes(date, et, indexes)
-    new EntityData(name, primaryIndex + (value -> et), updatedIndexes) 
+    val id: Any = ValuePool.intern(entity(primaryKey))
+    val et = primaryIndex.getOrElse(id, EntityTimeline()) + (date, entity, name)
+    val updatedIndexes = updateIndexes(date, EntityTimelineWithId(et, id), indexes)
+    new EntityData(name, primaryIndex + (id -> et), updatedIndexes) 
   }
   
   def - (date: Date, id: Any) : EntityData = {
@@ -34,7 +36,7 @@ class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline
     val ni = indexes.foldLeft(Map[String, Index]()) {(indexMap, tuple) =>
       val iName = tuple._1
       val i = tuple._2
-      indexMap + (iName -> (i - (date, et)))
+      indexMap + (iName -> (i - (date, EntityTimelineWithId(et, id))))
     }
     new EntityData(name, newPrimaryIndex, ni)
   }
@@ -52,7 +54,7 @@ class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline
     es.toSet
   }
   
-  private def updateIndexes(date: Date, et: EntityTimeline, indexes: Map[String, Index]): Map[String, Index] = {
+  private def updateIndexes(date: Date, et: EntityTimelineWithId, indexes: Map[String, Index]): Map[String, Index] = {
     indexes.foldLeft(Map[String, Index]()) {(map, t) =>
       val name = t._1
       val index = t._2
