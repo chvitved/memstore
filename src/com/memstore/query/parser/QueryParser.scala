@@ -11,18 +11,21 @@ class QueryParser extends JavaTokenParsers{
   
   def string: Parser[String] = """\w+""".r
   
-  def where: Parser[ExpAST] = opt("where"~>boolExp) ^^
+  def int: Parser[Int] = """\d+""".r ^^ {case intStr => intStr.toInt}
+  
+  def where: Parser[ExpAST] = opt("where"~>andOrExp) ^^
     {
       case Some(exp) => exp
       case None => EmptyExpAST()
     }
                                  
-  def boolExp: Parser[BoolExp] = binExp~rep(("and" | "or")~binExp) ^^
-    {case exp~list => BoolExp(exp, list.map(operatorValue2Tuple => (operatorValue2Tuple._1, operatorValue2Tuple._2)))}
+  def andOrExp: Parser[InnerExp] = operatorExp~rep(("and" | "or")~operatorExp) ^^
+    {case exp~list => InnerExp(exp, list.map{operatorValue2Tuple => 
+      (AndOrOperator.stringToOperator(operatorValue2Tuple._1), operatorValue2Tuple._2)})}
 
-  def binExp: Parser[ExpAST] = string~("==" | "!=" | "<=" | "<" | ">=" | ">")~parameter ^^ 
-    {case attribute~op~parameter => BinaryOpExp(attribute, op, parameter) } |
-    "("~>boolExp<~")"
+  def operatorExp: Parser[ExpAST] = string~("==" | "!=" | "<=" | "<" | ">=" | ">")~parameter ^^ 
+    {case attribute~op~parameter => LeafExp(attribute, op, parameter) } |
+    "("~>andOrExp<~")"
     
-  def parameter: Parser[Param] = "?" ^^ {case param => Param()}
+  def parameter: Parser[Param] = ":"~int ^^ {case tuple => Param(tuple._2)}
 }

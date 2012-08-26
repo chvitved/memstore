@@ -5,31 +5,13 @@ import com.memstore.Types.Entity
 
 object CompactEntity {
 	
-	var map = Map[String, Map[String, Int]]()
-	var reverseMap = Map[String, Map[Int, String]]()
-	
 	def apply(entityName: String, entity: Entity): CompactEntity = {
 	  validate(entityName, entity)
-	  val eName = entityName.intern()
-	  val filteredMap = entity.filter(t => !(t._1.startsWith("_") || t._2 == null))
-      val indexValueTuple = for((name, value) <- filteredMap) yield {
-        val eMap = map.getOrElse(eName, Map())
-        eMap.get(name) match {
-          case Some(index) => (index, value)
-          case None => {
-            val index = ValuePool.intern(eMap.size)
-            val newMap = eMap + (name.intern -> index)
-            map = map + (eName -> newMap)
-            val newReverseMap = reverseMap.getOrElse(eName, Map()) + (index -> name)
-            reverseMap = reverseMap + (eName -> newReverseMap)
-            (index, value)
-          }
-        }
-      }
-      createCompactEntity(eName, indexValueTuple)
+	  val indexValueTuple = EntityMetaData.getAndUpdate(entityName, entity)
+      createCompactEntity(entityName, indexValueTuple)
 	}
 	
-	private def createCompactEntity(name: String, values: Map[Int, Any]) = {
+	private def createCompactEntity(name: String, values: List[(Int, Any)]) = {
 		val indexBitmap = values.map(_._1).foldLeft(0){(acc, index) => acc | (1 << index)} 
 		val sortedValues = values.toArray.sortWith{(v1, v2) => v1._1 < v2._1}.map(_._2)
 		val svInterned = sortedValues.map(ValuePool.intern(_))
@@ -42,9 +24,7 @@ object CompactEntity {
 	      index :: indexList
 	    } else indexList
 	  }
-
-	  val indexMap = reverseMap(entityName) 
-	  Map(indexes.map(indexMap(_)).zip(ce.valueArray):_*)
+	  Map(indexes.map(EntityMetaData.indexToColumn(entityName, _)).zip(ce.valueArray):_*)
 	}
 	
 	private def containsIndex(ce: CompactEntity, index: Int): Boolean = {

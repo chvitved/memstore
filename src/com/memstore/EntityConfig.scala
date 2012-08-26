@@ -5,7 +5,8 @@ import com.memstore.index.IndexImpl
 import scala.collection.immutable.TreeMap
 import com.memstore.index.DateIndex
 
-class EntityConfig(val name: String, val indexes: IndexConfig[_]*) {
+class EntityConfig(val name: String, val key: String, val indexes: IndexConfig[_]*) {
+  def this(name: String) = this(name, "id")
 
 }
 

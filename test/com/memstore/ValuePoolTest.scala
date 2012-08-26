@@ -10,8 +10,6 @@ class ValuePoolTest {
     val long20: java.lang.Long = 20L
     val v2: java.lang.Integer = ValuePool.intern(int20)
     val v1: java.lang.Long = ValuePool.intern(long20)
-    
-    
   }
 
 }

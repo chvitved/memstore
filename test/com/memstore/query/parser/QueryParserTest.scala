@@ -10,14 +10,20 @@ class QueryTest {
   
   @Test
   def testParseSimpleQuery() {
-    parse("entity test where a > ?", true)
+    parse("entity test where a > :1", true)
     parse("entity test", true)
-    parse("entity test\n where a > ?", true)
-    parse("entity	test	 where	 a>	?", true)
-    parse("entity test where test.a > ?", false)
+    parse("entity test\n where a > :1", true)
+    parse("entity	test	 where	 a>	:1", true)
+    parse("entity test where test.a > :1", false)
     parse("entity test where a > 3", false)
-    parse("entity test where a > b", false)
-    parse("""entity test where a > "b"""", false)
+    parse("""entity test where a > ":1"""", false)
+    
+    parse("""entity test where a > :1 and b == :2""", true)
+    parse("""entity test where a > :1 and b == :1""", true)
+    parse("""entity test where a > :1 and b == 1""", false)
+    
+    parse("""entity test where a > :1 and (b == :2 or b == :3)""", true)
+    parse("""entity test where a > :1 and (b == :2 or (b == :3 or c != :4))""", true)
   }
   
   private def parse(query: String, success: Boolean) {

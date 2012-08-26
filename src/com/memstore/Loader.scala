@@ -69,7 +69,7 @@ object Loader {
 	
 	private def updateStore(old: Set[Entity], nev: Set[Entity], date: Date, entityName: String, em: EntityManager): EntityManager = {
 	  //delete
-	  val keysToDelete = old.map(_("_id")) -- nev.map(_("_id"))
+	  val keysToDelete = old.map(_("id")) -- nev.map(_("id"))
 	  val em1 = keysToDelete.foldLeft(em) {(em, key) =>
 	  	em.remove(entityName, date, key)
 	  }

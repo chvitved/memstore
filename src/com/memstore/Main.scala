@@ -8,13 +8,16 @@ import com.memstore.index.IndexImpl
 object Main extends Application{
   
   val drugNameIndex = new IndexConfig("drugname", (e: Entity) => e("navn").asInstanceOf[String])
-  val em = EntityManager().addEntity(new EntityConfig("Laegemiddel", drugNameIndex))
+  val em = EntityManager().addEntity(new EntityConfig("Laegemiddel","id", drugNameIndex))
   
   
   //val resEm = Loader.loadPricelists(em, new File("/Users/chr/ws-scala/pricelist-scala/data/takst"))
   val (em1, previous) = Loader.loadPricelist(new File("/Users/chr/ws-scala/pricelist-scala/data/takst/20080101"), em, null)
   //val (em2, prev) = Loader.loadPricelist(new File("/Users/chr/ws-scala/pricelist-scala/data/takst/20080101"), em1, previous)
   val em2 = em1
+  
+  println(em2.get("Pakning").primaryIndex.size + " pakninger")
+  println(em2.get("Laegemiddel").primaryIndex.size + " l¾gemidler")
 
   val index = em2.get("Laegemiddel").indexes("drugname")
   
@@ -79,6 +82,7 @@ object Main extends Application{
   val t2 = System.currentTimeMillis();
   val res = em2.fullScan("Laegemiddel", new Date(), predicate)
   println("fullscan time " + (System.currentTimeMillis() - t2))
+  println(res.size)
   println(res.flatMap(_.get("navn")))
   }
   

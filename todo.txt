@@ -14,3 +14,9 @@ outstanding unit test
 test tombstones in entitytimeline
 index tests
 entitytimeline removal
+
+
+query validation
+	validate entity exist
+	validate parameters (they cannot be null??)
+	

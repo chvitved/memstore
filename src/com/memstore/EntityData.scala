@@ -8,7 +8,7 @@ import com.memstore.Types.EntityTimelineWithId
 
 object EntityData{
   def apply(ec: EntityConfig) = {
-    new EntityData(ec.name, Map[Any, EntityTimeline](), setupIndexes(ec.indexes))
+    new EntityData(ec.name, ec.key, Map[Any, EntityTimeline](), setupIndexes(ec.indexes))
   }
   
   private def setupIndexes(ics: Seq[IndexConfig[_]]) : Map[String, Index] = {
@@ -18,14 +18,13 @@ object EntityData{
   }
 }
 
-class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline], val indexes: Map[String, Index]) {
+class EntityData private(name: String, key: String, val primaryIndex: Map[Any, EntityTimeline], val indexes: Map[String, Index]) {
   
   def + (date: Date, entity: Entity) : EntityData = {
-    val primaryKey = "_id"
-    val id: Any = ValuePool.intern(entity(primaryKey))
+    val id: Any = ValuePool.intern(entity(key))
     val et = primaryIndex.getOrElse(id, EntityTimeline()) + (date, entity, name)
     val updatedIndexes = updateIndexes(date, EntityTimelineWithId(et, id), indexes)
-    new EntityData(name, primaryIndex + (id -> et), updatedIndexes) 
+    new EntityData(name, key, primaryIndex + (id -> et), updatedIndexes) 
   }
   
   def - (date: Date, id: Any) : EntityData = {
@@ -38,7 +37,7 @@ class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline
       val i = tuple._2
       indexMap + (iName -> (i - (date, EntityTimelineWithId(et, id))))
     }
-    new EntityData(name, newPrimaryIndex, ni)
+    new EntityData(name, key, newPrimaryIndex, ni)
   }
   
   def apply(id: Any): Option[Entity] = primaryIndex(id).getNow()
@@ -61,7 +60,5 @@ class EntityData private(name: String, val primaryIndex: Map[Any, EntityTimeline
       map + (name -> (index + (date, et)))
     }
   }
-  
-  
   
 }	

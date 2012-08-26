@@ -3,7 +3,6 @@ import java.util.Calendar
 import java.util.Date
 import com.memstore.entity.TombStone
 import dk.trifork.sdm.importer.takst.model.DivEnheder
-import com.memstore.temp.ZipCode
 
 object ValuePool {
   
@@ -15,7 +14,7 @@ object ValuePool {
   val types = Set[Class[_]](
 	    classOf[Int], classOf[java.lang.Integer], classOf[Boolean], classOf[java.lang.Boolean], classOf[Date],
 	    classOf[Calendar], classOf[DivEnheder], classOf[TombStone], classOf[java.lang.Long], classOf[Long],
-	    classOf[java.lang.Double], classOf[Double], classOf[ZipCode]
+	    classOf[java.lang.Double], classOf[Double]
   )
   
   def size = allValues.size + numberMaps.foldLeft(0) {(acc, t) => acc + t._2.size}

@@ -44,7 +44,7 @@ object ObjectParser {
 	    }
 	  }
 	  val id = clas.getMethod("getEntityId").invoke(o)
-	  map + ("_id" -> id)
+	  map + ("id" -> id)
 	}
   	
   	def canParseValue(value: Any) = {
