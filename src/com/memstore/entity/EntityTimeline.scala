@@ -20,7 +20,7 @@ object EntityTimeline {
           //we are looking for a value older than the current one in the timeline
           val e: Entity = ce match {
             case Some(ce) => add(map, ce.get)
-            case None => Map[String, AnyRef]()
+            case None => Map[String, Any]()
           }
           get(date, tail, e)
         }

@@ -6,20 +6,16 @@ import com.memstore.entity.EntityTimeline
 import com.memstore.Types.Entity
 import com.memstore.Types.EntityTimelineWithId
 
-object IndexImpl {
+object Index {
   
   def apply[IndexType<%Ordered[IndexType]](indexMethod: Entity => IndexType) = {
-    new IndexImpl(TreeMap[IndexType, DateIndex](), indexMethod)
+    new Index(TreeMap[IndexType, DateIndex](), indexMethod)
   }
 }
 
-class IndexImpl[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIndex], indexMethod: Entity => IndexType) {
+class Index[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIndex], indexMethod: Entity => IndexType) {
   
-  def === (key: IndexType) : DateIndex = {
-    map.getOrElse(key, DateIndex())
-  }
-  
-  def + (date: Date, et: EntityTimelineWithId): IndexImpl[IndexType] = {
+  def + (date: Date, et: EntityTimelineWithId): Index[IndexType] = {
     et.et.get(date) match {
       case None => throw new Exception("there should be an entity when adding one")
       case Some(e: Entity) => {
@@ -33,7 +29,7 @@ class IndexImpl[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIn
 	    	if (key != null) { //how should we handle null
 	    		val di = map.getOrElse(key, DateIndex()) + (date, et)
 	    		val newMap = map + (key -> di)
-	    		new IndexImpl(newMap, indexMethod)
+	    		new Index(newMap, indexMethod)
 	    	} else {
 		      this - (date, et) // is null the same as removing an element?
 		    }
@@ -42,7 +38,7 @@ class IndexImpl[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIn
     }
   }
   
-  def - (date: Date, et: EntityTimelineWithId): IndexImpl[IndexType] = {
+  def - (date: Date, et: EntityTimelineWithId): Index[IndexType] = {
     //key is previous value in index
     et.et.get(new Date(date.getTime() - 1)) match {
       case None => throw new Exception("entity is already deleted") // should we not throw an exception
@@ -50,12 +46,32 @@ class IndexImpl[IndexType<%Ordered[IndexType]] (map: SortedMap[IndexType, DateIn
     	val key = indexMethod(e)
 	    val di = map(key)  - (date, et)
 	    val newMap = map + (key -> di)
-	    new IndexImpl(newMap, indexMethod)
+	    new Index(newMap, indexMethod)
       }
     }
   }
+
+  def === (key: IndexType, date: Date) : Set[Entity] = {
+    map.getOrElse(key, DateIndex()).get(date)
+  }
   
-  def range(date: Date, from: IndexType, until: IndexType) : Set[Entity] = {
+  def >(from: IndexType, date: Date) : Set[Entity] = {
+    >=(from, date) -- ===(from, date)
+  }
+  
+  def >= (from: IndexType, date: Date) : Set[Entity] = {
+    map.from(from).values.foldLeft(Set[Entity]()) {(set, di) => set ++ di.get(date)} 
+  }
+  
+  def <(until: IndexType, date: Date) : Set[Entity] = {
+    map.until(until).values.foldLeft(Set[Entity]()) {(set, di) => set ++ di.get(date)}
+  }
+  
+  def <= (value: IndexType, date: Date) : Set[Entity] = {
+	  ===(value, date) ++ <(value, date)
+  }
+  
+  def range(from: IndexType, until: IndexType, date: Date) : Set[Entity] = {
     val dateIndexes = map.range(from, until).values
     dateIndexes.foldLeft(Set[Entity]()){(set, di) =>
       set ++ di.get(date)

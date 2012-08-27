@@ -1,4 +1,7 @@
 package com.memstore
+
+import com.memstore.Types.Entity
+
 import java.lang.reflect.Modifier
 import java.lang.reflect.Field
 import java.util.{Date, Calendar}
@@ -14,7 +17,7 @@ object ObjectParser {
   
 	var warnFields = Set[Field]();
   
-  	def apply(objects: Set[Any]): Tuple2[String, Set[Map[String, Any]]] = {
+  	def apply(objects: Set[Any]): Tuple2[String, Set[Entity]] = {
   	  if (objects.isEmpty) (null, Set[Map[String, Any]]())
   	  else {
   		  val name = objects.head.getClass().getSimpleName()
@@ -23,13 +26,13 @@ object ObjectParser {
   	  }
 	}
 
-  	private def apply(o: Any): Map[String, Any] = {
+  	private def apply(o: Any): Entity = {
 	  val clas = o.getClass
 	  val fs = clas.getDeclaredFields
 	  fs.foreach(_.setAccessible(true))
 	  val fields = fs.filter{f => !Modifier.isStatic(f.getModifiers())}
 	  
-	  val map =fields.foldLeft(Map[String, AnyRef]()){(map, f) => 
+	  val map =fields.foldLeft(Map[String, Any]()){(map, f) => 
 	    val v = f.get(o)
 	    if (v != null && canParseValue(v)) {
 	    	map + (f.getName() -> v)

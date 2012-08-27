@@ -10,9 +10,9 @@ class EntityTest {
   
   @Test
   def testTemporalData() {
-    val id = 1
+    val id: Integer = 1
     val entity = EntityTimeline()
-    val map1 = Map[String, Any](("id" -> id), ("a" -> "hello"), ("b" -> "world"), ("c" -> 5L))
+    val map1 = Map[String, Any](("id" -> id), ("a" -> "hello"), ("b" -> "world"), ("c" -> new java.lang.Long(5)))
     val map2 = Map[String, Any](("id" -> id), ("a" -> "hello1"), ("b" -> "world"))
     val t1 = new Date(1000L) 
     val t2 = new Date(2000L)
@@ -32,7 +32,7 @@ class EntityTest {
   
   @Test
   def testDelete() {
-    val id = 1
+    val id: Integer = 1
     val entity = EntityTimeline()
     val map = Map[String, Any](("id" -> id), ("a" -> "hello"))
     val t1 = new Date(1000L)

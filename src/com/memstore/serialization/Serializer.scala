@@ -31,7 +31,7 @@ class Serializer {
     e.elements.foreach{case(name, value) =>
     	value match {
     	  case v: String => se.addStrings(Data.StringTuple.newBuilder().setKey(name).setValue(v))
-    	  case v: Int => se.addIntegers(Data.IntTuple.newBuilder().setKey(name).setValue(v))
+    	  case v: Integer => se.addIntegers(Data.IntTuple.newBuilder().setKey(name).setValue(v))
     	}
     }
   }

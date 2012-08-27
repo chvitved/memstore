@@ -3,7 +3,6 @@ package com.memstore
 import java.io.File
 import com.memstore.Types.Entity
 import java.util.Date
-import com.memstore.index.IndexImpl
 
 object Main extends Application{
   
@@ -25,7 +24,7 @@ object Main extends Application{
   val from = "A"
   val to = "B"
   val t1 = System.currentTimeMillis();
-  val res = index.range(new Date(), from, to)
+  val res = index.range(from, to, new Date())
   println("Time " + (System.currentTimeMillis() - t1))
   println("results " + res.size)
   //val names = res.toList.map(_("navn").toString).toList.sorted
@@ -36,7 +35,7 @@ object Main extends Application{
   val from = "B"
   val to = "C"
   val t1 = System.currentTimeMillis();
-  val res = index.range(new Date(), from, to)
+  val res = index.range(from, to, new Date())
   println("Time " + (System.currentTimeMillis() - t1))
   println("results " + res.size)
   //val names = res.toList.map(_("navn").toString).toList.sorted
@@ -47,7 +46,7 @@ object Main extends Application{
   val from = "Pan"
   val to = "Pao"
   val t1 = System.currentTimeMillis();
-  val res = index.range(new Date(), from, to)
+  val res = index.range(from, to, new Date())
   println("Time " + (System.currentTimeMillis() - t1))
   println("results " + res.size)
   //val names = res.toList.map(_("navn").toString).toList.sorted

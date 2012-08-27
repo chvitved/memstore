@@ -18,7 +18,7 @@ object CompactEntity {
 		new CompactEntity(name, ValuePool.intern(indexBitmap), svInterned)
 	}
 	
-	private def get(entityName: String, ce: CompactEntity): Map[String, Any] = {
+	private def get(entityName: String, ce: CompactEntity): Entity = {
 	  val indexes = (0 to 31).foldRight(List[Int]()) {(index, indexList) => 
 	    if (containsIndex(ce, index)) {
 	      index :: indexList
@@ -42,7 +42,7 @@ class CompactEntity private(val name: String, private val indexBitmap: Int, priv
   
   override def toString() = get.toString
   
-  def get : Map[String, Any] = {
+  def get : Entity = {
     CompactEntity.get(name, this)
   }
   
