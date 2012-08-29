@@ -8,7 +8,7 @@ object EntityMetaData{
   private var map = Map[String, EntityMetaData]()
   
   def getAndUpdate(entityName: String, e: Entity) : List[(Int, Any)] = {
-    val emd = map.getOrElse(entityName, new EntityMetaData(Map(), Map()))
+    val emd = map.getOrElse(entityName, new EntityMetaData(Map(), Map(), Map()))
     val (newEmd, indexList) =  updateMetaDataAndGetIndexList(e, emd)
     map = map + (entityName -> newEmd)
     indexList
@@ -28,7 +28,8 @@ object EntityMetaData{
           val index = ValuePool.intern(emd.columnToIndexMap.size)
           val newMap = emd.columnToIndexMap + (ValuePool.intern(name) -> index)
           val newReverseMap = emd.reverseMap + (index -> name)
-          (new EntityMetaData(newMap, newReverseMap), (index -> value) :: indexValueList)
+          val newTypeMap = emd.typeMap + (index -> value.getClass)
+          (new EntityMetaData(newMap, newReverseMap, newTypeMap), (index -> value) :: indexValueList)
         }
       }
     }
@@ -37,6 +38,8 @@ object EntityMetaData{
   def indexToColumn(entityName: String, index: Int) = {
     map(entityName).reverseMap(index)
   }
+  
+  def getType(entityName: String, index: Int): Class[_] = map(entityName).typeMap(index)
 }
 
-class EntityMetaData private(private val columnToIndexMap: Map[String, Int], private val reverseMap: Map[Int, String])
+class EntityMetaData private(private val columnToIndexMap: Map[String, Int], private val reverseMap: Map[Int, String], private val typeMap: Map[Int, Class[_]])

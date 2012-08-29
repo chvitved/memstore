@@ -4,44 +4,38 @@ import com.memstore.Types.{Entity, Index}
 import java.util.Date
 
 object Operator {
-	def getOperator(string : String) = {
-		string match {
-		case "==" => EqualsOperator
-		case "<" => LessThanOperator
-		case ">" => BiggerThanOperator
+	def getOperator(operation : String, columnName: String, parameterIndex: Int): Operator = {
+		operation match {
+			case "==" => EqualsOperator(columnName, parameterIndex)
+			case "<" => LessThanOperator(columnName, parameterIndex)
+			case ">" => BiggerThanOperator(columnName, parameterIndex)
 		//TODO map each operator
 		}
 	}
 }
 
-abstract class Operator() {
+abstract class Operator(private val columnName: String, private val paramIndex: Int) {
 
-	def scanCode(attribute: String, parameter: Any) : Set[Entity] => Set[Entity] = {
-		(data: Set[Entity]) => {
-		  println("start iterating")
-		  val time = System.currentTimeMillis
-		  val iterator = data.filter((e: Entity) => makeOrderedOperation(e(attribute), parameter, operator))
-		  println("end iterating: " + (System.currentTimeMillis - time))
-		  iterator
+	protected def makeOrderedOperation(p1: Any, p2: Any) : (Ordered[Any], Ordered[Any]) = {
+		(p1, p2) match {
+			case (param1: Ordered[Any], param2: Ordered[Any]) => (param1, param2) 
+			case _ => throw new Exception("Could not make an ordered operation on parameters " + p1 + " and " + p2);
 		}
 	}
 
-	protected def makeOrderedOperation(entityValue: Any, param: Any, operation: (Ordered[Any], Ordered[Any]) => Boolean) : Boolean = {
-		(entityValue, param) match {
-			case (param1: Ordered[Any], param2: Ordered[Any]) => operation(param1, param2)
-			case _ => throw new Exception("Could not perform and operation on parameters: " + entityValue + " and " + param + " they are have not been parsed to values that implement the Ordered interface");
-		}
-	}
-
-	def operator(param1: Ordered[Any], param2: Ordered[Any]) : Boolean
+	def operator(param1: Any, param2: Any) : Boolean
 
 	def indexCode(index: Index, parameter: Any, date: Date) : () => Set[Entity]
+	
+	def predicate : (Entity, Array[Any]) => Boolean = {
+	    (e: Entity, params: Array[Any]) => operator(e(columnName), params(paramIndex))
+	}
 
 }
 
-object EqualsOperator extends Operator{
+case class EqualsOperator(columnName: String, paramIndex: Int) extends Operator(columnName, paramIndex){
 
-	override def operator(param1: Ordered[Any], param2: Ordered[Any]) = {
+	override def operator(param1: Any, param2: Any) = {
 		param1 == param2
 	}
 
@@ -50,22 +44,24 @@ object EqualsOperator extends Operator{
 	}
 }
 
-object LessThanOperator extends Operator {
+case class LessThanOperator(columnName: String, paramIndex: Int) extends Operator(columnName, paramIndex){
 	override def indexCode(index: Index, parameter: Any, date: Date) : () => Set[Entity] = {
 		() => index < (parameter, date)
 	}
  
-	override def operator(param1: Ordered[Any], param2: Ordered[Any]) = {
-		param1.compareTo(param2) == -1;	
+	override def operator(param1: Any, param2: Any) = {
+	  val (o1, o2) = makeOrderedOperation(param1, param2)
+	  o1.compareTo(o2) == -1;	
 	}
 }
 
-object BiggerThanOperator extends Operator {
+case class BiggerThanOperator(columnName: String, paramIndex: Int) extends Operator(columnName, paramIndex){
 	override def indexCode(index: Index, parameter: Any, date: Date) : () => Set[Entity] = {
 		() => index > (parameter, date)
 	}
  
-	override def operator(param1: Ordered[Any], param2: Ordered[Any]) = {
-		param1.compareTo(param2) == 1;	
+	override def operator(param1: Any, param2: Any) = {
+	  val (o1, o2) = makeOrderedOperation(param1, param2)
+	  o1.compareTo(o2) == 1;	
 	}
 }

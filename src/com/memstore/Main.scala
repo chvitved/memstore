@@ -7,7 +7,8 @@ import java.util.Date
 object Main extends Application{
   
   val drugNameIndex = new IndexConfig("drugname", (e: Entity) => e("navn").asInstanceOf[String])
-  val em = EntityManager().addEntity(new EntityConfig("Laegemiddel","id", drugNameIndex))
+  val drugIdIndexConfig = new IndexConfig("drugid", (e: Entity) => e("id").asInstanceOf[Long])
+  val em = EntityManager().addEntity(new EntityConfig("Laegemiddel","id", drugNameIndex, drugIdIndexConfig))
   
   
   //val resEm = Loader.loadPricelists(em, new File("/Users/chr/ws-scala/pricelist-scala/data/takst"))
@@ -18,6 +19,10 @@ object Main extends Application{
   println(em2.get("Pakning").primaryIndex.size + " pakninger")
   println(em2.get("Laegemiddel").primaryIndex.size + " l¾gemidler")
 
+  val drugIdIndex = em2.get("Laegemiddel").indexes("drugid")
+  println("found drugid size " + (drugIdIndex < (28103666305L, new Date())).size) 
+
+  
   val index = em2.get("Laegemiddel").indexes("drugname")
   
   {

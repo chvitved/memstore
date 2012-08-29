@@ -42,6 +42,7 @@ class CompactEntity private(val name: String, private val indexBitmap: Int, priv
   
   override def toString() = get.toString
   
+  //TODO make a more efficient version, where values are taken directly from the compact entity
   def get : Entity = {
     CompactEntity.get(name, this)
   }
