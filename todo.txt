@@ -5,6 +5,9 @@ Det kan vi ikke se når vi bare smider nogle indsættelser helt væk, hvis de er ma
 
 
 outstanding unit test
+query tst with time
+query test on primary key
+query can return metadata telling how the query was executed
 test tombstones in entitytimeline
 index tests
 entitytimeline removal
@@ -12,8 +15,11 @@ entitytimeline removal
 make entities take less space by having pools for different types of values, and refer into these pools with by using the most space efficient primitive types, byte, short, char, int.
 This should be away of avoiding that every data element takes at least 64 bits because it is a pointer
 
-
+query stuff
+query planning
+	score indexes on the operator (eq is better than greater than)
 query validation
 	validate entity exist
 	validate parameters (they cannot be null??)
+
 	

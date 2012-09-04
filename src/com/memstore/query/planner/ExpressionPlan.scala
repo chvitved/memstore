@@ -1,12 +1,29 @@
 package com.memstore.query.planner
 
 import com.memstore.Types.Entity
-import com.memstore.query.parser.ExpAST
 import com.memstore.query.parser.AndOrOperator
+import com.memstore.query.parser.LeafExp
 
-abstract sealed case class ExpressionPlan
+abstract sealed case class ExpressionPlan{
+  def score: Int
+}
+case class LeafExpPlan(exp: LeafExp, operator: Operator, scanType: ScanType) extends ExpressionPlan {
+  override def score = scanType.score
+}
+case class InnerExpPlan(expressions: List[(ExpressionPlan, AndOrOperator)], score: Int) extends ExpressionPlan
 
-case class LeafExpPlan(val exp: ExpAST, val scanCode: Set[Entity] => Set[Entity], val indexCode: () => Set[Entity]) extends ExpressionPlan 
-  
-case class InnerExpPlan(val expressions: List[(ExpressionPlan, AndOrOperator)]) extends ExpressionPlan
+
+abstract case class ScanType {
+  def score: Int
+}
+case class primaryKeyScan extends ScanType {
+  def score = 1
+}
+case class IndexScan extends ScanType {
+  def score = 4
+}
+case class FullScan extends ScanType {
+  def score = 16
+}
+
   

@@ -23,7 +23,7 @@ class QueryParser extends JavaTokenParsers{
     {case exp~list => InnerExp(exp, list.map{operatorValue2Tuple => 
       (AndOrOperator.stringToOperator(operatorValue2Tuple._1), operatorValue2Tuple._2)})}
 
-  def operatorExp: Parser[ExpAST] = string~("==" | "!=" | "<=" | "<" | ">=" | ">")~parameter ^^ 
+  def operatorExp: Parser[ExpAST] = string~("==" | "=" | "!=" | "<=" | "<" | ">=" | ">")~parameter ^^ 
     {case attribute~op~parameter => LeafExp(attribute, op, parameter) } |
     "("~>andOrExp<~")"
     

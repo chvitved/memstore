@@ -18,7 +18,7 @@ object EntityData{
   }
 }
 
-class EntityData private(name: String, key: String, val primaryIndex: Map[Any, EntityTimeline], val indexes: Map[String, Index]) {
+class EntityData private(val name: String, val key: String, val primaryIndex: Map[Any, EntityTimeline], val indexes: Map[String, Index]) {
   
   def + (date: Date, entity: Entity) : EntityData = {
     val id: Any = ValuePool.intern(entity(key))
