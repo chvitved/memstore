@@ -1,20 +1,20 @@
-package com.memstore.entity
+package com.memstore.entity.impl.cebitmap
 
 import com.memstore.Types.Entity
 import com.memstore.ValuePool
 
-object EntityMetaData{
+object CEBitmapMetaData{
   
-  private var map = Map[String, EntityMetaData]()
+  private var map = Map[String, CEBitmapMetaData]()
   
   def getAndUpdate(entityName: String, e: Entity) : List[(Int, Any)] = {
-    val emd = map.getOrElse(entityName, new EntityMetaData(Map(), Map(), Map()))
+    val emd = map.getOrElse(entityName, new CEBitmapMetaData(Map(), Map(), Map()))
     val (newEmd, indexList) =  updateMetaDataAndGetIndexList(e, emd)
     map = map + (entityName -> newEmd)
     indexList
   }
   
-  private def updateMetaDataAndGetIndexList(entity: Entity, emd: EntityMetaData): (EntityMetaData, List[(Int, Any)]) = {
+  private def updateMetaDataAndGetIndexList(entity: Entity, emd: CEBitmapMetaData): (CEBitmapMetaData, List[(Int, Any)]) = {
     val filteredMap = entity.filter(t => !(t._2 == null))
     val start = (emd, List[(Int, Any)]())
     filteredMap.foldLeft(start) { (accTuple, entityTuple) =>
@@ -29,7 +29,7 @@ object EntityMetaData{
           val newMap = emd.columnToIndexMap + (ValuePool.intern(name) -> index)
           val newReverseMap = emd.reverseMap + (index -> name)
           val newTypeMap = emd.typeMap + (index -> value.getClass)
-          (new EntityMetaData(newMap, newReverseMap, newTypeMap), (index -> value) :: indexValueList)
+          (new CEBitmapMetaData(newMap, newReverseMap, newTypeMap), (index -> value) :: indexValueList)
         }
       }
     }
@@ -42,4 +42,4 @@ object EntityMetaData{
   def getType(entityName: String, index: Int): Class[_] = map(entityName).typeMap(index)
 }
 
-class EntityMetaData private(private val columnToIndexMap: Map[String, Int], private val reverseMap: Map[Int, String], private val typeMap: Map[Int, Class[_]])
+class CEBitmapMetaData private(private val columnToIndexMap: Map[String, Int], private val reverseMap: Map[Int, String], private val typeMap: Map[Int, Class[_]])

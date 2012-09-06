@@ -1880,6 +1880,372 @@ public final class Serialization {
     // @@protoc_insertion_point(class_scope:com.memstore.Data)
   }
   
+  public static final class PBEntity extends
+      com.google.protobuf.GeneratedMessage {
+    // Use PBEntity.newBuilder() to construct.
+    private PBEntity() {
+      initFields();
+    }
+    private PBEntity(boolean noInit) {}
+    
+    private static final PBEntity defaultInstance;
+    public static PBEntity getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public PBEntity getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.memstore.serialization.Serialization.internal_static_com_memstore_PBEntity_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.memstore.serialization.Serialization.internal_static_com_memstore_PBEntity_fieldAccessorTable;
+    }
+    
+    // required int32 bitmap = 1;
+    public static final int BITMAP_FIELD_NUMBER = 1;
+    private boolean hasBitmap;
+    private int bitmap_ = 0;
+    public boolean hasBitmap() { return hasBitmap; }
+    public int getBitmap() { return bitmap_; }
+    
+    // repeated int32 poolIndexes = 2;
+    public static final int POOLINDEXES_FIELD_NUMBER = 2;
+    private java.util.List<java.lang.Integer> poolIndexes_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.Integer> getPoolIndexesList() {
+      return poolIndexes_;
+    }
+    public int getPoolIndexesCount() { return poolIndexes_.size(); }
+    public int getPoolIndexes(int index) {
+      return poolIndexes_.get(index);
+    }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      if (!hasBitmap) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (hasBitmap()) {
+        output.writeInt32(1, getBitmap());
+      }
+      for (int element : getPoolIndexesList()) {
+        output.writeInt32(2, element);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (hasBitmap()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, getBitmap());
+      }
+      {
+        int dataSize = 0;
+        for (int element : getPoolIndexesList()) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getPoolIndexesList().size();
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static com.memstore.serialization.Serialization.PBEntity parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.memstore.serialization.Serialization.PBEntity parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.memstore.serialization.Serialization.PBEntity parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.memstore.serialization.Serialization.PBEntity parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.memstore.serialization.Serialization.PBEntity parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.memstore.serialization.Serialization.PBEntity parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.memstore.serialization.Serialization.PBEntity parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.memstore.serialization.Serialization.PBEntity parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.memstore.serialization.Serialization.PBEntity parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.memstore.serialization.Serialization.PBEntity parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.memstore.serialization.Serialization.PBEntity prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private com.memstore.serialization.Serialization.PBEntity result;
+      
+      // Construct using com.memstore.serialization.Serialization.PBEntity.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new com.memstore.serialization.Serialization.PBEntity();
+        return builder;
+      }
+      
+      protected com.memstore.serialization.Serialization.PBEntity internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new com.memstore.serialization.Serialization.PBEntity();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.memstore.serialization.Serialization.PBEntity.getDescriptor();
+      }
+      
+      public com.memstore.serialization.Serialization.PBEntity getDefaultInstanceForType() {
+        return com.memstore.serialization.Serialization.PBEntity.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public com.memstore.serialization.Serialization.PBEntity build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private com.memstore.serialization.Serialization.PBEntity buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public com.memstore.serialization.Serialization.PBEntity buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        if (result.poolIndexes_ != java.util.Collections.EMPTY_LIST) {
+          result.poolIndexes_ =
+            java.util.Collections.unmodifiableList(result.poolIndexes_);
+        }
+        com.memstore.serialization.Serialization.PBEntity returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.memstore.serialization.Serialization.PBEntity) {
+          return mergeFrom((com.memstore.serialization.Serialization.PBEntity)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(com.memstore.serialization.Serialization.PBEntity other) {
+        if (other == com.memstore.serialization.Serialization.PBEntity.getDefaultInstance()) return this;
+        if (other.hasBitmap()) {
+          setBitmap(other.getBitmap());
+        }
+        if (!other.poolIndexes_.isEmpty()) {
+          if (result.poolIndexes_.isEmpty()) {
+            result.poolIndexes_ = new java.util.ArrayList<java.lang.Integer>();
+          }
+          result.poolIndexes_.addAll(other.poolIndexes_);
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 8: {
+              setBitmap(input.readInt32());
+              break;
+            }
+            case 16: {
+              addPoolIndexes(input.readInt32());
+              break;
+            }
+            case 18: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              while (input.getBytesUntilLimit() > 0) {
+                addPoolIndexes(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // required int32 bitmap = 1;
+      public boolean hasBitmap() {
+        return result.hasBitmap();
+      }
+      public int getBitmap() {
+        return result.getBitmap();
+      }
+      public Builder setBitmap(int value) {
+        result.hasBitmap = true;
+        result.bitmap_ = value;
+        return this;
+      }
+      public Builder clearBitmap() {
+        result.hasBitmap = false;
+        result.bitmap_ = 0;
+        return this;
+      }
+      
+      // repeated int32 poolIndexes = 2;
+      public java.util.List<java.lang.Integer> getPoolIndexesList() {
+        return java.util.Collections.unmodifiableList(result.poolIndexes_);
+      }
+      public int getPoolIndexesCount() {
+        return result.getPoolIndexesCount();
+      }
+      public int getPoolIndexes(int index) {
+        return result.getPoolIndexes(index);
+      }
+      public Builder setPoolIndexes(int index, int value) {
+        result.poolIndexes_.set(index, value);
+        return this;
+      }
+      public Builder addPoolIndexes(int value) {
+        if (result.poolIndexes_.isEmpty()) {
+          result.poolIndexes_ = new java.util.ArrayList<java.lang.Integer>();
+        }
+        result.poolIndexes_.add(value);
+        return this;
+      }
+      public Builder addAllPoolIndexes(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        if (result.poolIndexes_.isEmpty()) {
+          result.poolIndexes_ = new java.util.ArrayList<java.lang.Integer>();
+        }
+        super.addAll(values, result.poolIndexes_);
+        return this;
+      }
+      public Builder clearPoolIndexes() {
+        result.poolIndexes_ = java.util.Collections.emptyList();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:com.memstore.PBEntity)
+    }
+    
+    static {
+      defaultInstance = new PBEntity(true);
+      com.memstore.serialization.Serialization.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:com.memstore.PBEntity)
+  }
+  
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_com_memstore_Data_descriptor;
   private static
@@ -1905,6 +2271,11 @@ public final class Serialization {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_memstore_Data_IntTuple_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_memstore_PBEntity_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_com_memstore_PBEntity_fieldAccessorTable;
   
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -1923,8 +2294,9 @@ public final class Serialization {
       "tegers\030\003 \003(\0132\033.com.memstore.Data.IntTupl" +
       "e\022\021\n\ttombstone\030\004 \001(\010\032)\n\013StringTuple\022\013\n\003k" +
       "ey\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\032&\n\010IntTuple\022\013\n\003k" +
-      "ey\030\001 \002(\t\022\r\n\005value\030\002 \002(\005B\034\n\032com.memstore.",
-      "serialization"
+      "ey\030\001 \002(\t\022\r\n\005value\030\002 \002(\005\"/\n\010PBEntity\022\016\n\006b",
+      "itmap\030\001 \002(\005\022\023\n\013poolIndexes\030\002 \003(\005B\034\n\032com." +
+      "memstore.serialization"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -1971,6 +2343,14 @@ public final class Serialization {
               new java.lang.String[] { "Key", "Value", },
               com.memstore.serialization.Serialization.Data.IntTuple.class,
               com.memstore.serialization.Serialization.Data.IntTuple.Builder.class);
+          internal_static_com_memstore_PBEntity_descriptor =
+            getDescriptor().getMessageTypes().get(1);
+          internal_static_com_memstore_PBEntity_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_com_memstore_PBEntity_descriptor,
+              new java.lang.String[] { "Bitmap", "PoolIndexes", },
+              com.memstore.serialization.Serialization.PBEntity.class,
+              com.memstore.serialization.Serialization.PBEntity.Builder.class);
           return null;
         }
       };
