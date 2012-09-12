@@ -47,7 +47,6 @@ object ValuePool {
       println("not pooled: " + v)
       v 
     }
-    	
   }
   
   private def shouldPoolValue(value: Any) = {

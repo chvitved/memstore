@@ -7,6 +7,15 @@ import org.junit.Before
 class EntityTest {
 
   val name = "test"
+    
+  @Test
+  def simple() {
+    val et = EntityTimeline()
+    val t1 = new Date(1000L)
+    val m = Map[String, Any]("id" -> 1, "a" -> "hello")
+    val e2 = et + (t1, m, name)
+    assertEquals(Some(m), e2.get(t1))
+  }
   
   @Test
   def testTemporalData() {

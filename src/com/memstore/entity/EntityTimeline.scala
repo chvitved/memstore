@@ -41,7 +41,7 @@ object EntityTimeline {
   }
   
   def isAfter(newDate: Date, currentDate: Date) {
-    if (!(currentDate before newDate)) 
+    if (newDate before currentDate) 
     	throw new Exception(String.format("date set (%s) for removal was not after the latest date (%s) in the timeline", newDate, currentDate))
   }
 }

@@ -7,6 +7,7 @@ import com.memstore.query.parser.QueryAST
 import com.memstore.query.planner.QueryPlanner
 import com.memstore.query.planner.QueryCode
 import java.util.Date
+import com.memstore.util.TimeUtil
 
 object Query {
   def apply(queryString: String, parameters: IndexedSeq[Any], em: EntityManager, date: Date) : Set[Entity] = { 
@@ -14,6 +15,8 @@ object Query {
   }
     
   def query(query: String, parameters: IndexedSeq[Any], em: EntityManager, date: Date) : Set[Entity] = {
+    println()
+    println(query)
     val startTime = System.nanoTime
     val queryAST = parseQuery(query)
     val ed = em.get(queryAST.entity)
@@ -21,8 +24,8 @@ object Query {
     val startQueryCodeTime = System.nanoTime
     val res = QueryCode.queryCode(queryPlan, ed, parameters, date)
     val doneTime = System.nanoTime
-    println("done queriyng in " + (doneTime - startTime) + "nanos")
-    println("querycode took " + (doneTime - startQueryCodeTime) + "nanos")
+    println("done queriyng in " + TimeUtil.printNanos(doneTime - startTime))
+    println("querycode took " + TimeUtil.printNanos(doneTime - startQueryCodeTime))
     res
   }
   
@@ -33,8 +36,7 @@ object Query {
     if (!parseResult.successful) {  
       throw new Exception("Parse error: " + parseResult)
     }
-    println("done parsing in " + (System.nanoTime - startTime) + "nanos")
-    
+    println("done parsing in " + TimeUtil.printNanos(System.nanoTime - startTime))
     parseResult.get
   }
 }

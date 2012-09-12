@@ -9,8 +9,8 @@ object CEBitmapImpl {
 	
 	def apply(entityName: String, entity: Entity): CEBitmapImpl = {
 	  validate(entityName, entity)
-	  val indexValueTuple = CEBitmapMetaData.getAndUpdate(entityName, entity)
-      createCompactEntity(entityName, indexValueTuple)
+	  val indexValueTuples = CEBitmapMetaData.getAndUpdate(entityName, entity)
+      createCompactEntity(entityName, indexValueTuples)
 	}
 	
 	private def createCompactEntity(name: String, values: List[(Int, Any)]) = {

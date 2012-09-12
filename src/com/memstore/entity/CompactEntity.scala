@@ -1,13 +1,15 @@
 package com.memstore.entity
 import java.util.Arrays
 import com.memstore.Types.Entity
-import com.memstore.entity.impl.cebitmap.CEBitmapImpl
+import com.memstore.EntityConfig
 
 object CompactEntity {
 	
 	def apply(entityName: String, entity: Entity): CompactEntity = {
-	  CEBitmapImpl(entityName, entity)
+	  //impl.cebitmap.CEBitmapImpl(entityName, entity)
+	  impl.cepb.CEPB(entityName, entity)
 	}
+	
 }
 trait CompactEntity {
   

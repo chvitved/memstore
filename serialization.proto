@@ -30,6 +30,40 @@ message Data {
 }
 
 message PBEntity {
-	required int32 bitmap = 1;
-	repeated int32 poolIndexes = 2;
+	required int32 entityId = 1;
+	required int32 bitmap = 2;
+	repeated int32 poolIndexes = 3;
+}
+
+message PBEntityManager {
+	repeated PBEntityData ed = 1;
+}
+
+message PBEntityData {
+	required string name = 1;
+	required string keyColumn = 2;
+	repeated PBValue primaryIndexKey = 3;
+	repeated PBEntityTimeline entityTimeline= 4;
+	//todo indexes
+}
+
+message PBEntityTimeline {
+	repeated int64 date = 1;
+	repeated PBEntity entity = 2;
+}
+
+message PBValue {
+	repeated StringTuple strings = 2;
+	repeated IntTuple integers = 3;
+	optional bool tombstone = 4;
+	
+	message StringTuple {
+		required string key = 1;
+		required string value = 2;
+	}
+	
+	message IntTuple {
+		required string key = 1;
+		required int32 value = 2;
+	}
 }

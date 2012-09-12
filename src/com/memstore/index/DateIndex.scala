@@ -34,7 +34,6 @@ class DateIndex private (map: Map[Any, EntityTimelineWithDateList]) {
     	val first = dateList.head
     	if (first != Nil && date.before(first.date)) throw new Exception(String.format("date %s is before the last date %s", date, first.date))
     }  
-    
   }
   
   def -(date: Date, e: EntityTimelineWithId) : DateIndex = {
