@@ -1,11 +1,10 @@
 package com.memstore.entity.impl.cepb
 
 import scala.collection.JavaConversions._
-
 import com.memstore.entity.CompactEntity
 import com.memstore.Types.Entity
-
 import com.memstore.serialization.Serialization.PBEntity
+import java.util.Arrays
 
 object CEPB {
   
@@ -69,6 +68,25 @@ object CEPB {
   }
 }
 
-class CEPB private(pbeBytes: Array[Byte]) extends CompactEntity{
+class CEPB(val pbeBytes: Array[Byte]) extends CompactEntity{
   def get() : Entity = CEPB.toEntity(pbeBytes)
+  
+  override def equals(o: Any): Boolean = {
+    val anyRef = o.asInstanceOf[AnyRef]
+	if (this eq anyRef) 
+	  return true;
+	if (o == null)
+		return false;
+	if (getClass() != o.getClass())
+		return false;
+	val other = o.asInstanceOf[CEPB];
+	if (!Arrays.equals(pbeBytes, other.pbeBytes))
+		return false;
+	return true;
+  }
+  
+  override def hashCode(): Int = {
+	val prime = 31;
+	prime + Arrays.hashCode(pbeBytes);
+  }
 }

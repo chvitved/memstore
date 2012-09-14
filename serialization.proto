@@ -12,7 +12,7 @@ message Data {
 	}
 	
 	message Entity {
-		required int64 date = 1;
+		required uint64 date = 1;
 		repeated StringTuple strings = 2;
 		repeated IntTuple integers = 3;
 		optional bool tombstone = 4;
@@ -25,18 +25,18 @@ message Data {
 	
 	message IntTuple {
 		required string key = 1;
-		required int32 value = 2;
+		required uint32 value = 2;
 	}
 }
 
 message PBEntity {
-	required int32 entityId = 1;
-	required int32 bitmap = 2;
-	repeated int32 poolIndexes = 3;
+	required uint32 entityId = 1;
+	required uint32 bitmap = 2;
+	repeated uint32 poolIndexes = 3;
 }
 
 message PBEntityManager {
-	repeated PBEntityData ed = 1;
+	repeated PBEntityData entityData = 1;
 }
 
 message PBEntityData {
@@ -48,22 +48,19 @@ message PBEntityData {
 }
 
 message PBEntityTimeline {
-	repeated int64 date = 1;
-	repeated PBEntity entity = 2;
+	repeated uint64 date = 1;
+	repeated PBEntityTimelineValue value = 2;
 }
 
+message PBEntityTimelineValue {
+	optional Tombstone tombstone = 1;
+	optional PBEntity entity = 2;
+}
+
+message Tombstone{}
+
 message PBValue {
-	repeated StringTuple strings = 2;
-	repeated IntTuple integers = 3;
-	optional bool tombstone = 4;
-	
-	message StringTuple {
-		required string key = 1;
-		required string value = 2;
-	}
-	
-	message IntTuple {
-		required string key = 1;
-		required int32 value = 2;
-	}
+	optional string string = 1;
+	optional int32 int = 2;
+	optional int64 long = 3;
 }

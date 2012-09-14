@@ -46,7 +46,7 @@ object EntityTimeline {
   }
 }
 
-private class ET(val timeline: List[(Date, Option[CompactEntity])]) extends EntityTimeline{
+case class ET(timeline: List[(Date, Option[CompactEntity])]) extends EntityTimeline{
   
   def + (date: Date, entity: Entity, entityName: String) : ET = {
     val current = get(date)
@@ -116,7 +116,7 @@ abstract trait EntityTimeline {
   def getNow() : Option[Entity] = get(new Date())
 }
 
-private class EntityTimelineWithNoHistory(val date: Date, ce: CompactEntity) extends EntityTimeline {
+case class EntityTimelineWithNoHistory(date: Date, ce: CompactEntity) extends EntityTimeline {
   def timeline: List[(Date, Option[CompactEntity])] = List[(Date, Option[CompactEntity])](date -> Some(ce)) 
   def + (date: Date, entity: Entity, entityName: String): EntityTimeline = {
     EntityTimeline.isAfter(date, this.date)
@@ -130,7 +130,7 @@ private class EntityTimelineWithNoHistory(val date: Date, ce: CompactEntity) ext
   def get(date: Date) : Option[Entity] = if (!(date before this.date)) Some(ce.get) else None
 }
 
-private class EmptyEntityTimeline extends EntityTimeline {
+private case class EmptyEntityTimeline extends EntityTimeline {
   def timeline: List[(Date, Option[CompactEntity])] = List[(Date, Option[CompactEntity])]()
   def + (date: Date, entity: Entity, entityName: String): EntityTimeline = new EntityTimelineWithNoHistory(date, CompactEntity(entityName, entity))
   def - (date: Date):EntityTimeline = {

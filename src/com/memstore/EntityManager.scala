@@ -9,11 +9,11 @@ object EntityManager {
   
 }
 
-class EntityManager private(val map: Map[String, EntityData]) {
+case class EntityManager(map: Map[String, EntityData]) {
   
 	def addEntity(ec: EntityConfig) : EntityManager = {
 	  if (map.contains(ec.name)) throw new IllegalArgumentException(String.format("entity %s is already added", ec.name))
-	  new EntityManager(map + (ec.name -> EntityData(ec)))
+	  EntityManager(map + (ec.name -> EntityData(ec)))
 	}
   
   	def add(name: String, date: Date, entity: Entity) : EntityManager = {
@@ -30,7 +30,7 @@ class EntityManager private(val map: Map[String, EntityData]) {
   	  val n = ValuePool.intern(name)
   	  val d = ValuePool.intern(date)
   	  val ed = getEntityData(n)
-  	  new EntityManager(map + (n -> func(d, ed)))
+  	  EntityManager(map + (n -> func(d, ed)))
   	}
   	
   	private def getEntityData(name: String): EntityData = {

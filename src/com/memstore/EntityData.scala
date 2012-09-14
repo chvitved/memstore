@@ -18,14 +18,14 @@ object EntityData{
   }
 }
 
-class EntityData private(val name: String, val key: String, val primaryIndex: Map[Any, EntityTimeline], val indexes: Map[String, Index]) {
+case class EntityData(name: String, key: String, primaryIndex: Map[Any, EntityTimeline], indexes: Map[String, Index]) {
   
   def + (date: Date, entity: Entity) : EntityData = {
     //val id: Any = ValuePool.intern(entity(key))
     val id: Any = entity(key)
     val et = primaryIndex.getOrElse(id, EntityTimeline()) + (date, entity, name)
     val updatedIndexes = updateIndexes(date, EntityTimelineWithId(et, id), indexes)
-    new EntityData(name, key, primaryIndex + (id -> et), updatedIndexes) 
+    EntityData(name, key, primaryIndex + (id -> et), updatedIndexes) 
   }
   
   def - (date: Date, id: Any) : EntityData = {
@@ -38,7 +38,7 @@ class EntityData private(val name: String, val key: String, val primaryIndex: Ma
       val i = tuple._2
       indexMap + (iName -> (i - (date, EntityTimelineWithId(et, id))))
     }
-    new EntityData(name, key, newPrimaryIndex, ni)
+    EntityData(name, key, newPrimaryIndex, ni)
   }
   
   def apply(id: Any): Option[Entity] = primaryIndex(id).getNow()
