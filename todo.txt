@@ -5,7 +5,7 @@ Det kan vi ikke se når vi bare smider nogle indsættelser helt væk, hvis de er ma
 
 make compactentity more compact by chaning the api so each ce should not remember its entityname
 
-probably remove com.memstore.ValuePool
+probably remove ValuePool
 
 outstanding unit test
 query tst with time

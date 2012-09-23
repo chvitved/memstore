@@ -1,7 +1,6 @@
 package com.memstore.entity
 import java.util.Arrays
 import com.memstore.Types.Entity
-import com.memstore.EntityConfig
 
 object CompactEntity {
 	

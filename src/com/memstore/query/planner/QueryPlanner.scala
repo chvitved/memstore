@@ -9,7 +9,7 @@ import com.memstore.query.parser.LeafExp
 import com.memstore.query.parser.ExpAST
 import com.memstore.query.parser.AndOperator
 import com.memstore.query.parser.OrOperator
-import com.memstore.EntityData
+import com.memstore.entity.EntityData
 import java.util.Date
 
 object QueryPlanner {

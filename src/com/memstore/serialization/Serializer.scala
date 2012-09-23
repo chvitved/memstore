@@ -1,5 +1,4 @@
 package com.memstore.serialization
-import com.memstore.EntityManager
 import com.memstore.Types.Entity
 import com.memstore.serialization.Serialization.PBEntityManager
 import com.memstore.serialization.Serialization.PBEntityData
@@ -10,6 +9,7 @@ import com.memstore.entity.impl.cepb.CEPB
 import com.memstore.serialization.Serialization.PBEntityTimelineValue
 import com.memstore.serialization.Serialization.Tombstone
 import com.memstore.util.Zip
+import com.memstore.entity.EntityManager
 
 object Serializer {
   
@@ -36,7 +36,7 @@ object Serializer {
       }
       pbemBuilder.addEntityData(pbedBuilder)
     }
-	pbemBuilder.build()
+    pbemBuilder.build()
   }
   
   private def toPBValue(value: Any): PBValue = {

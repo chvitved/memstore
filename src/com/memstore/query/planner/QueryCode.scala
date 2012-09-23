@@ -1,13 +1,12 @@
 package com.memstore.query.planner
 
 import com.memstore.Types.{Entity, Index}
-import com.memstore.EntityManager
-import com.memstore.EntityData
 import java.util.Date
 import com.memstore.entity.EntityTimeline
 import com.memstore.query.parser.AndOrOperator
 import com.memstore.query.parser.AndOperator
 import com.memstore.query.parser.OrOperator
+import com.memstore.entity.EntityData
 
 object QueryCode {
   

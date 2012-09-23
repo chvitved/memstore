@@ -1,6 +1,5 @@
 package com.memstore.serialization
 import com.memstore.serialization.Serialization.PBEntityManager
-import com.memstore.EntityManager
 import com.memstore.serialization.Serialization.PBEntityTimeline
 import com.memstore.entity.EntityTimeline
 import java.util.Date
@@ -11,9 +10,10 @@ import com.memstore.entity.CompactEntity
 import com.memstore.entity.ET
 import scala.collection.JavaConversions._
 import com.memstore.serialization.Serialization.PBEntityData
-import com.memstore.EntityData
 import com.memstore.Types.{Entity, Index}
 import com.memstore.serialization.Serialization.PBValue
+import com.memstore.entity.EntityManager
+import com.memstore.entity.EntityData
 
 
 object DeSerializer {

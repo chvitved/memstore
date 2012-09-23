@@ -1,4 +1,4 @@
-package com.memstore
+package com.pricelist
 
 import java.io.File
 import dk.trifork.sdm.importer.takst.TakstImporter
@@ -8,15 +8,22 @@ import com.memstore.entity.EntityTimeline
 import com.memstore.Types.Entity
 import dk.trifork.sdm.model.CompleteDataset
 import java.util.Date
+import com.memstore.entity.EntityManager
+import com.memstore.Monitor
+import com.memstore.ValuePool
 
 object Loader {
   
   val filteredEntitites = Set[String]("Takst", "Tidsenhed", "Pakningsstoerrelsesenhed", "Styrkeenhed")
 
   def loadPricelists(em: EntityManager, rootDir: File) : EntityManager = {
+    loadPricelists(em, rootDir, Integer.MAX_VALUE)
+  }
+  
+  def loadPricelists(em: EntityManager, rootDir: File, max: Int) : EntityManager = {
 	  val pricelistDirs = rootDir.listFiles(new FilenameFilter() {
 		  def accept(file: File, name: String) = file.isDirectory && !name.startsWith(".")
-	  })
+	  }).take(max)
 
 	  var counter = 1
 	  var previous: Collection[CompleteDataset[_]] = null

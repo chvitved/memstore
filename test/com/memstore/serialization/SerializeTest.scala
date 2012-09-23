@@ -2,7 +2,7 @@ package com.memstore.serialization
 
 import org.junit.Test
 import org.junit.Assert._
-import com.memstore.EntityManager
+import com.memstore.entity.EntityManager
 import java.util.Date
 
 class SerializeTest {
@@ -33,10 +33,9 @@ class SerializeTest {
     
     val b2 = Map[String, Any]("id"->2, "b"->5)
     
-    val em3 = em2.add(b, t1, b1).add(b, t2, b1Mark)
+    val em3 = em2.add(b, t1, b1).add(b, t2, b1Mark).remove(b, t3, 1) //note also a delete
     val em4 = em3.add(b, t1, b2)
     
-
     val pbem = Serializer.serialize(em4)
    
     val restoredEm = DeSerializer.deSerialize(pbem)

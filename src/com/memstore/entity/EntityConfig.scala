@@ -1,4 +1,4 @@
-package com.memstore
+package com.memstore.entity
 
 import com.memstore.Types.{Entity, Index}
 import scala.collection.immutable.TreeMap

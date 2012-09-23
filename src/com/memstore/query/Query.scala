@@ -1,7 +1,7 @@
 package com.memstore.query
 
 import com.memstore.Types.Entity
-import com.memstore.EntityManager
+import com.memstore.entity.EntityManager
 import com.memstore.query.parser.QueryParser
 import com.memstore.query.parser.QueryAST
 import com.memstore.query.planner.QueryPlanner

@@ -1,7 +1,6 @@
 package com.memstore.entity.impl.cepb
 
 import com.memstore.Types.Entity
-import com.memstore.EntityConfig
 
 object CEPBMetaData{
   

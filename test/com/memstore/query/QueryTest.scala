@@ -2,12 +2,11 @@ package com.memstore.query
 import org.junit.Test
 import org.junit.Before
 import org.junit.Assert._
-
-import com.memstore.EntityManager
 import java.util.Date
-import com.memstore.IndexConfig
 import com.memstore.Types.Entity
-import com.memstore.EntityConfig
+import com.memstore.entity.EntityManager
+import com.memstore.entity.IndexConfig
+import com.memstore.entity.EntityConfig
 
 class QueryTest {
   

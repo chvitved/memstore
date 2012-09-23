@@ -1,4 +1,4 @@
-package com.memstore
+package com.pricelist
 
 import com.memstore.Types.Entity
 

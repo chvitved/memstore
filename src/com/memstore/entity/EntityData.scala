@@ -1,9 +1,6 @@
-package com.memstore
+package com.memstore.entity
 import java.util.Date
 import com.memstore.Types.{Entity, Index}
-import com.memstore.entity.CompactEntity
-import com.memstore.entity.EntityTimeline
-import com.memstore.entity.ET
 import com.memstore.Types.EntityTimelineWithId
 
 object EntityData{

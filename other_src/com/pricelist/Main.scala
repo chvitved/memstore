@@ -1,8 +1,11 @@
-package com.memstore
+package com.pricelist
 
 import java.io.File
 import com.memstore.Types.Entity
 import java.util.Date
+import com.memstore.entity.IndexConfig
+import com.memstore.entity.EntityManager
+import com.memstore.entity.EntityConfig
 
 object Main extends Application{
   

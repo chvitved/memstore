@@ -1,4 +1,4 @@
-package com.memstore
+package com.memstore.entity
 
 import org.junit.Test
 import org.junit.Before
