@@ -1,3 +1,7 @@
+build
+.gradle
+.classpath
+.project
 bin
 .cache
 sdm_log

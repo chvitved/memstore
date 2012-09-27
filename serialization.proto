@@ -30,7 +30,6 @@ message Data {
 }
 
 message PBEntity {
-	required uint32 entityId = 1;
 	required uint32 bitmap = 2;
 	repeated uint32 poolIndexes = 3;
 }

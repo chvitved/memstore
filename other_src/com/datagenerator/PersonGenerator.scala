@@ -9,6 +9,7 @@ import com.memstore.entity.impl.cepb.CEPBMetaData
 import com.memstore.util.Zip
 import com.memstore.serialization.DeSerializer
 import com.memstore.entity.EntityManager
+import com.memstore.entity.EntityConfig
 
 object PersonGenerator extends App{
   
@@ -18,16 +19,15 @@ object PersonGenerator extends App{
   
   def run() {
     
-	  CEPBMetaData.configNotPooledColumns("person", "id")
-    
 //	  val zipIndexConfig = new IndexConfig("zip", (e: Entity) => e("zip").asInstanceOf[Int])
 //	  val nameIndexConfig = new IndexConfig("firstName", (e: Entity) => e("firstName").asInstanceOf[String])
 //	  val e = EntityManager().addEntity(new EntityConfig("person", "id", zipIndexConfig, nameIndexConfig))
-	  val e = EntityManager()
-	  val em = generate(1000000, e)
+	  val em = EntityManager()
+	  val em1 = em.addEntity(new EntityConfig("person", List("id")))
+	  val em2 = generate(1000000, em1)
 	  MemUtil.printMem()
 	  val t = System.currentTimeMillis
-	  val pbem = Serializer.serialize(em)
+	  val pbem = Serializer.serialize(em2)
 	  println("serialization took " + (System.currentTimeMillis - t))
 	  println("zipped size " + Zip.zip(pbem.toByteArray()).size)
 	  val t1 = System.currentTimeMillis

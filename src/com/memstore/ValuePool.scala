@@ -2,7 +2,6 @@ package com.memstore
 import java.util.Calendar
 import java.util.Date
 import com.memstore.entity.TombStone
-import dk.trifork.sdm.importer.takst.model.DivEnheder
 
 object ValuePool {
   
@@ -13,7 +12,7 @@ object ValuePool {
   
   val types = Set[Class[_]](
 	    classOf[Int], classOf[java.lang.Integer], classOf[Boolean], classOf[java.lang.Boolean], classOf[Date],
-	    classOf[Calendar], classOf[DivEnheder], classOf[TombStone], classOf[java.lang.Long], classOf[Long],
+	    classOf[Calendar], classOf[TombStone], classOf[java.lang.Long], classOf[Long],
 	    classOf[java.lang.Double], classOf[Double]
   )
   

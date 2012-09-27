@@ -5,8 +5,7 @@ import com.memstore.Types.Entity
 import com.memstore.ValuePool
 
 object EntityManager {
-  def apply() = new EntityManager(Map[String, EntityData]())
-  
+  def apply(): EntityManager = new EntityManager(Map[String, EntityData]())  
 }
 
 case class EntityManager(map: Map[String, EntityData]) {

@@ -5,25 +5,24 @@ import com.memstore.entity.CompactEntity
 import com.memstore.Types.Entity
 import com.memstore.serialization.Serialization.PBEntity
 import java.util.Arrays
+import com.memstore.entity.CompactEntityMetaData
 
 object CEPB {
   
   var count: Int = 0
   var sum: Int = 0
   
-  def apply(entityName: String, e: Entity): CEPB = {
-    val indexValueTuples = CEPBMetaData.getAndUpdate(entityName, e)
+  def apply(e: Entity, compactEntityMetaData: CompactEntityMetaData): (CEPB, CEPBMetaData) = {
+    val metaData = compactEntityMetaData.asInstanceOf[CEPBMetaData]
+    val (newMetaData, indexValueTuples) = metaData.getIndexesAndUpdateMetaData(e)
     
-    //is this necessary. CEPBMetaData.getAndUpdate could do it
     val sortedValues = indexValueTuples.toArray.sortWith{(v1, v2) => v1._1 < v2._1} 
     
-    val entityId = CEPBMetaData.entityNameToIndex(entityName)
     val indexBitmap = sortedValues.map(_._1).foldLeft(0){(acc, index) => acc | (1 << index)} 
-	val svDataPoolIndexes = sortedValues.map(maybePool(entityId, _))
+	val svDataPoolIndexes = sortedValues.map(maybePool(_, metaData))
 	
-	val b = PBEntity.newBuilder().setEntityId(entityId).setBitmap(indexBitmap)
+	val b = PBEntity.newBuilder().setBitmap(indexBitmap)
 	svDataPoolIndexes.foreach(b.addPoolIndexes(_))
-	
 	val bytes = b.build.toByteArray()
 	val cepb = new CEPB(bytes)
 	
@@ -33,11 +32,11 @@ object CEPB {
 	  println("avg byte size = " + (sum/count).toInt)
 	}
 	
-	cepb
+	(cepb, newMetaData)
   }
   
-  private def maybePool(entityId: Int, columnIndexAndValue: (Int, Any)): Int = {
-    if (CEPBMetaData.poolValue(entityId, columnIndexAndValue._1)) {
+  private def maybePool(columnIndexAndValue: (Int, Any), metaData: CEPBMetaData): Int = {
+    if (metaData.poolValue(columnIndexAndValue._1)) {
       DataPool.index(columnIndexAndValue._2)
     } else {
       columnIndexAndValue._2 match {
@@ -47,19 +46,18 @@ object CEPB {
     }
   }
   
-  private def toEntity(pbeBytes: Array[Byte]) : Entity = {
+  private def toEntity(pbeBytes: Array[Byte], compactEntityMetaData: CompactEntityMetaData) : Entity = {
+    val metaData = compactEntityMetaData.asInstanceOf[CEPBMetaData]
     val pbe = PBEntity.parseFrom(pbeBytes)
-    val entityName = CEPBMetaData.intToEntityName(pbe.getEntityId())
     val indexes = (0 to 31).foldRight(List[Int]()) {(index, indexList) => 
 	    if (containsIndex(pbe, index)) {
 	      index :: indexList
 	    } else indexList
 	}
-    val entityId = pbe.getEntityId()
     
-    val ColumnAndPoolIndexTuples =  indexes.zip(pbe.getPoolIndexesList())
-    val values = ColumnAndPoolIndexTuples.map{case (columnIndex, poolIndex) => DataPool.indexToValue(poolIndex,CEPBMetaData.getType(entityId, columnIndex))}
-    val e = Map[String, Any](indexes.map(CEPBMetaData.indexToColumn(entityId, _)).zip(values):_*)
+    val columnAndPoolIndexTuples =  indexes.zip(pbe.getPoolIndexesList())
+    val values = columnAndPoolIndexTuples.map{case (columnIndex, poolIndex) => DataPool.indexToValue(poolIndex, metaData.getType(columnIndex))}
+    val e = Map[String, Any](indexes.map(metaData.indexToColumn(_)).zip(values):_*)
     e
   }
   
@@ -69,7 +67,7 @@ object CEPB {
 }
 
 class CEPB(val pbeBytes: Array[Byte]) extends CompactEntity{
-  def get() : Entity = CEPB.toEntity(pbeBytes)
+  override def get(metaData: CompactEntityMetaData) : Entity = CEPB.toEntity(pbeBytes, metaData)
   
   override def equals(o: Any): Boolean = {
     val anyRef = o.asInstanceOf[AnyRef]

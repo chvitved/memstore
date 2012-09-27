@@ -7,6 +7,7 @@ import com.memstore.query.parser.AndOrOperator
 import com.memstore.query.parser.AndOperator
 import com.memstore.query.parser.OrOperator
 import com.memstore.entity.EntityData
+import com.memstore.entity.CompactEntityMetaData
 
 object QueryCode {
   
@@ -18,8 +19,8 @@ object QueryCode {
 
 	private def expCode(exp: ExpressionPlan, ed: EntityData,  parameters: IndexedSeq[Any], date: Date, resultSoFar: Set[Entity], intersect: Boolean): Set[Entity] = {
 	  exp match {
-	    case e: InnerExpPlan => innerExpCode(e, ed, parameters, date,resultSoFar, intersect)
-	    case e: LeafExpPlan =>  leafExpCode(e, ed, parameters, date,resultSoFar, intersect)
+	    case e: InnerExpPlan => innerExpCode(e, ed, parameters, date, resultSoFar, intersect)
+	    case e: LeafExpPlan =>  leafExpCode(e, ed, parameters, date, resultSoFar, intersect)
 	  }
 	}
 	
@@ -98,20 +99,20 @@ object QueryCode {
   private def scan(expPlan: LeafExpPlan, ed: EntityData,  parameter: Any, date: Date): Set[Entity] = {
     val entities = 
       for(et <- ed.primaryIndex.values;
-		e <- et.get(date) if (expPlan.operator.predicate(e, parameter))
+		e <- et.get(date, ed.metaData) if (expPlan.operator.predicate(e, parameter))
 	  ) yield e
 	  entities.toSet
   }
   
   private def useIndex(expPlan: LeafExpPlan, ed: EntityData,  parameter: Any, date: Date): Set[Entity] = {
     val index = ed.indexes(expPlan.exp.attribute)
-    expPlan.operator.indexCode(index, parameter, date)
+    expPlan.operator.indexCode(index, parameter, date, ed.metaData)
   }
   
   private def useUniqueIndex(operator: Operator, ed: EntityData,  parameter: Any, date: Date): Set[Entity] = {
     operator match {
       case op: EqualsOperator => {
-        val e = for (et <- ed.primaryIndex.get(parameter); e <- et.get(date)) yield e
+        val e = for (et <- ed.primaryIndex.get(parameter); e <- et.get(date, ed.metaData)) yield e
         e match {
           case Some(e) => Set[Entity](e)
           case None => Set[Entity]()

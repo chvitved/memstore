@@ -1907,13 +1907,6 @@ public final class Serialization {
       return com.memstore.serialization.Serialization.internal_static_com_memstore_PBEntity_fieldAccessorTable;
     }
     
-    // required uint32 entityId = 1;
-    public static final int ENTITYID_FIELD_NUMBER = 1;
-    private boolean hasEntityId;
-    private int entityId_ = 0;
-    public boolean hasEntityId() { return hasEntityId; }
-    public int getEntityId() { return entityId_; }
-    
     // required uint32 bitmap = 2;
     public static final int BITMAP_FIELD_NUMBER = 2;
     private boolean hasBitmap;
@@ -1936,7 +1929,6 @@ public final class Serialization {
     private void initFields() {
     }
     public final boolean isInitialized() {
-      if (!hasEntityId) return false;
       if (!hasBitmap) return false;
       return true;
     }
@@ -1944,9 +1936,6 @@ public final class Serialization {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasEntityId()) {
-        output.writeUInt32(1, getEntityId());
-      }
       if (hasBitmap()) {
         output.writeUInt32(2, getBitmap());
       }
@@ -1962,10 +1951,6 @@ public final class Serialization {
       if (size != -1) return size;
     
       size = 0;
-      if (hasEntityId()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(1, getEntityId());
-      }
       if (hasBitmap()) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt32Size(2, getBitmap());
@@ -2141,9 +2126,6 @@ public final class Serialization {
       
       public Builder mergeFrom(com.memstore.serialization.Serialization.PBEntity other) {
         if (other == com.memstore.serialization.Serialization.PBEntity.getDefaultInstance()) return this;
-        if (other.hasEntityId()) {
-          setEntityId(other.getEntityId());
-        }
         if (other.hasBitmap()) {
           setBitmap(other.getBitmap());
         }
@@ -2178,10 +2160,6 @@ public final class Serialization {
               }
               break;
             }
-            case 8: {
-              setEntityId(input.readUInt32());
-              break;
-            }
             case 16: {
               setBitmap(input.readUInt32());
               break;
@@ -2203,24 +2181,6 @@ public final class Serialization {
         }
       }
       
-      
-      // required uint32 entityId = 1;
-      public boolean hasEntityId() {
-        return result.hasEntityId();
-      }
-      public int getEntityId() {
-        return result.getEntityId();
-      }
-      public Builder setEntityId(int value) {
-        result.hasEntityId = true;
-        result.entityId_ = value;
-        return this;
-      }
-      public Builder clearEntityId() {
-        result.hasEntityId = false;
-        result.entityId_ = 0;
-        return this;
-      }
       
       // required uint32 bitmap = 2;
       public boolean hasBitmap() {
@@ -4605,22 +4565,21 @@ public final class Serialization {
       "tegers\030\003 \003(\0132\033.com.memstore.Data.IntTupl" +
       "e\022\021\n\ttombstone\030\004 \001(\010\032)\n\013StringTuple\022\013\n\003k" +
       "ey\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\032&\n\010IntTuple\022\013\n\003k" +
-      "ey\030\001 \002(\t\022\r\n\005value\030\002 \002(\r\"A\n\010PBEntity\022\020\n\010e",
-      "ntityId\030\001 \002(\r\022\016\n\006bitmap\030\002 \002(\r\022\023\n\013poolInd" +
-      "exes\030\003 \003(\r\"A\n\017PBEntityManager\022.\n\nentityD" +
-      "ata\030\001 \003(\0132\032.com.memstore.PBEntityData\"\227\001" +
-      "\n\014PBEntityData\022\014\n\004name\030\001 \002(\t\022\021\n\tkeyColum" +
-      "n\030\002 \002(\t\022.\n\017primaryIndexKey\030\003 \003(\0132\025.com.m" +
-      "emstore.PBValue\0226\n\016entityTimeline\030\004 \003(\0132" +
-      "\036.com.memstore.PBEntityTimeline\"T\n\020PBEnt" +
-      "ityTimeline\022\014\n\004date\030\001 \003(\004\0222\n\005value\030\002 \003(\013" +
-      "2#.com.memstore.PBEntityTimelineValue\"k\n" +
-      "\025PBEntityTimelineValue\022*\n\ttombstone\030\001 \001(",
-      "\0132\027.com.memstore.Tombstone\022&\n\006entity\030\002 \001" +
-      "(\0132\026.com.memstore.PBEntity\"\013\n\tTombstone\"" +
-      "4\n\007PBValue\022\016\n\006string\030\001 \001(\t\022\013\n\003int\030\002 \001(\005\022" +
-      "\014\n\004long\030\003 \001(\003B\034\n\032com.memstore.serializat" +
-      "ion"
+      "ey\030\001 \002(\t\022\r\n\005value\030\002 \002(\r\"/\n\010PBEntity\022\016\n\006b",
+      "itmap\030\002 \002(\r\022\023\n\013poolIndexes\030\003 \003(\r\"A\n\017PBEn" +
+      "tityManager\022.\n\nentityData\030\001 \003(\0132\032.com.me" +
+      "mstore.PBEntityData\"\227\001\n\014PBEntityData\022\014\n\004" +
+      "name\030\001 \002(\t\022\021\n\tkeyColumn\030\002 \002(\t\022.\n\017primary" +
+      "IndexKey\030\003 \003(\0132\025.com.memstore.PBValue\0226\n" +
+      "\016entityTimeline\030\004 \003(\0132\036.com.memstore.PBE" +
+      "ntityTimeline\"T\n\020PBEntityTimeline\022\014\n\004dat" +
+      "e\030\001 \003(\004\0222\n\005value\030\002 \003(\0132#.com.memstore.PB" +
+      "EntityTimelineValue\"k\n\025PBEntityTimelineV" +
+      "alue\022*\n\ttombstone\030\001 \001(\0132\027.com.memstore.T",
+      "ombstone\022&\n\006entity\030\002 \001(\0132\026.com.memstore." +
+      "PBEntity\"\013\n\tTombstone\"4\n\007PBValue\022\016\n\006stri" +
+      "ng\030\001 \001(\t\022\013\n\003int\030\002 \001(\005\022\014\n\004long\030\003 \001(\003B\034\n\032c" +
+      "om.memstore.serialization"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -4672,7 +4631,7 @@ public final class Serialization {
           internal_static_com_memstore_PBEntity_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_com_memstore_PBEntity_descriptor,
-              new java.lang.String[] { "EntityId", "Bitmap", "PoolIndexes", },
+              new java.lang.String[] { "Bitmap", "PoolIndexes", },
               com.memstore.serialization.Serialization.PBEntity.class,
               com.memstore.serialization.Serialization.PBEntity.Builder.class);
           internal_static_com_memstore_PBEntityManager_descriptor =

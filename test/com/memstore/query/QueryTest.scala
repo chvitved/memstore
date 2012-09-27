@@ -26,11 +26,10 @@ class QueryTest {
   def setup() {
     val em1 = EntityManager()
     
-    
     val ageIndexConfig = new IndexConfig(age, (e: Entity) => e(age).asInstanceOf[Int])
     val nameIndexConfig = new IndexConfig(name, (e: Entity) => e(name).asInstanceOf[String])
     
-    val em2 = em1.addEntity(new EntityConfig(person, "id", ageIndexConfig, nameIndexConfig))
+    val em2 = em1.addEntity(new EntityConfig(person, "id",List[String](),  ageIndexConfig, nameIndexConfig))
     
     em = List(christian, malene, clara, anton).foldLeft(em2){(em, p) => em.add(person, t1, p)}
   }

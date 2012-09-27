@@ -10,7 +10,7 @@ import com.memstore.entity.EntityConfig
 object Main extends Application{
   
   val drugNameIndex = new IndexConfig("drugname", (e: Entity) => e("navn").asInstanceOf[String])
-  val em = EntityManager().addEntity(new EntityConfig("Laegemiddel","id", drugNameIndex))
+  val em = EntityManager().addEntity(new EntityConfig("Laegemiddel","id", List[String](), drugNameIndex))
   
   
   //val resEm = Loader.loadPricelists(em, new File("/Users/chr/ws-scala/pricelist-scala/data/takst"))
@@ -22,12 +22,13 @@ object Main extends Application{
   println(em2.get("Laegemiddel").primaryIndex.size + " l¾gemidler")
 
   val index = em2.get("Laegemiddel").indexes("drugname")
+  val metaData = em2.get("Laegemiddel").metaData
   
   {
   val from = "A"
   val to = "B"
   val t1 = System.currentTimeMillis();
-  val res = index.range(from, to, new Date())
+  val res = index.range(from, to, new Date(), metaData)
   println("Time " + (System.currentTimeMillis() - t1))
   println("results " + res.size)
   //val names = res.toList.map(_("navn").toString).toList.sorted
@@ -38,7 +39,7 @@ object Main extends Application{
   val from = "B"
   val to = "C"
   val t1 = System.currentTimeMillis();
-  val res = index.range(from, to, new Date())
+  val res = index.range(from, to, new Date(), metaData)
   println("Time " + (System.currentTimeMillis() - t1))
   println("results " + res.size)
   //val names = res.toList.map(_("navn").toString).toList.sorted
@@ -49,7 +50,7 @@ object Main extends Application{
   val from = "Pan"
   val to = "Pao"
   val t1 = System.currentTimeMillis();
-  val res = index.range(from, to, new Date())
+  val res = index.range(from, to, new Date(), metaData)
   println("Time " + (System.currentTimeMillis() - t1))
   println("results " + res.size)
   //val names = res.toList.map(_("navn").toString).toList.sorted

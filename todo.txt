@@ -3,8 +3,6 @@ Dette kan være problematisk, da man så ikke kan se der er indsat en ny værdi til
 Det kan f.eks være problematisk da vi checker man hele tiden indsætter nyere data. 
 Det kan vi ikke se når vi bare smider nogle indsættelser helt væk, hvis de er magen til forrige værdi
 
-make compactentity more compact by chaning the api so each ce should not remember its entityname
-
 probably remove ValuePool
 
 outstanding unit test

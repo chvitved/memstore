@@ -4,6 +4,7 @@ import java.util.Arrays
 import com.memstore.ValuePool
 import com.memstore.Types.Entity
 import com.memstore.entity.CompactEntity
+import com.memstore.entity.CompactEntityMetaData
 
 object CEBitmapImpl {
 	
@@ -42,11 +43,7 @@ object CEBitmapImpl {
 
 class CEBitmapImpl private(val name: String, private val indexBitmap: Int, private val valueArray: Array[Any]) extends CompactEntity{
   
-  override def toString() = get.toString
-  
-  def get : Entity = {
-    CEBitmapImpl.get(name, this)
-  }
+  override def get(metaData: CompactEntityMetaData) : Entity = CEBitmapImpl.get(name, this)
   
   override def hashCode(): Int = {
 		val prime = 31;

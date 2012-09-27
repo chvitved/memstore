@@ -21,7 +21,7 @@ object DeSerializer {
   def deSerialize(pbem: PBEntityManager): EntityManager = {
     val map = pbem.getEntityDataList().foldLeft(Map[String, EntityData]()) {(map, pbed) =>
       val ed = deSerializeEntityData(pbed)
-      map + (ed.name -> ed)
+      map + (ed.metaData.name -> ed)
     }
     EntityManager(map)
   }
@@ -30,7 +30,7 @@ object DeSerializer {
     val primaryIndexMap = (0 until pbed.getEntityTimelineCount()).foldLeft(Map[Any, EntityTimeline]()) {(map, index) => 
       map + (pbValueToValue(pbed.getPrimaryIndexKey(index)) -> deSerializeEntityTimeline(pbed.getEntityTimeline(index)))
     }
-    EntityData(pbed.getName(), pbed.getKeyColumn(), primaryIndexMap,Map[String, Index]())
+    EntityData(null, pbed.getKeyColumn(), primaryIndexMap,Map[String, Index]())
   }
   
   private def deSerializeEntityTimeline(pbet: PBEntityTimeline) : EntityTimeline = {
