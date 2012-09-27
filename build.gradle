@@ -19,10 +19,6 @@ dependencies {
     compile 'org.scala-lang:scala-library:2.9.2'
 }
 
-compileScala {
-    scalaCompileOptions.useCompileDaemon = true
-}
-
 sourceSets {
     main {
         scala {

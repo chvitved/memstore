@@ -2,6 +2,7 @@ build
 .gradle
 .classpath
 .project
+.settings
 bin
 .cache
 sdm_log

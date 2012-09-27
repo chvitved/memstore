@@ -10,15 +10,20 @@ import com.memstore.serialization.Serialization.PBEntityTimelineValue
 import com.memstore.serialization.Serialization.Tombstone
 import com.memstore.util.Zip
 import com.memstore.entity.EntityManager
+import com.memstore.entity.CompactEntityMetaData
+import com.memstore.entity.CompactEntityMetaData
+import com.memstore.serialization.Serialization.PBMetaData
+import com.memstore.entity.impl.cepb.CEPBMetaData
+import com.memstore.serialization.Serialization.PBStringIntPair
 
 object Serializer {
   
   def serialize(em: EntityManager): PBEntityManager = {
     val time = System.currentTimeMillis
 	val pbemBuilder = PBEntityManager.newBuilder()
-    em.map.foreach{ case(name, entityData) =>
+    em.map.values.foreach{ entityData =>
       val pbedBuilder = PBEntityData.newBuilder()
-      pbedBuilder.setName(name).setKeyColumn(entityData.key)
+      pbedBuilder.setMetaData(toPBMetaData(entityData.metaData)).setKeyColumn(entityData.key)
       entityData.primaryIndex.elements.foreach{ case(key, entityTimeline) =>
         pbedBuilder.addPrimaryIndexKey(toPBValue(key))
         val pbetBuilder = PBEntityTimeline.newBuilder()
@@ -38,6 +43,28 @@ object Serializer {
     }
     pbemBuilder.build()
   }
+  
+  private def toPBMetaData(md: CompactEntityMetaData) : PBMetaData = {
+    md match {
+      case m: CEPBMetaData => {
+        toPBMetaData(m)
+      }
+      case _ => throw new Exception("could not serialize metadata " + md + " of class " + md.getClass)
+    }
+  }
+  
+  private def toPBMetaData(md: CEPBMetaData): PBMetaData = {
+    val builder = PBMetaData.newBuilder()
+    builder.setName(md.name)
+    md.columnToIndexMap.foreach{case (columnName, index) =>
+      builder.addColumnToIndex(toPBStringIntPair(columnName, index))
+    }
+    md.typeMap.foreach{case(index, clas) => builder.addIndexToType(toPBStringIntPair(clas.getName(), index))}
+    md.notPooledColumnsName.foreach(name => builder.addNotPooledColumns(name))
+    builder.build
+  }
+  
+  private def toPBStringIntPair(string: String, int: Int) = PBStringIntPair.newBuilder().setString(string).setInt(int)
   
   private def toPBValue(value: Any): PBValue = {
     val vb = PBValue.newBuilder()

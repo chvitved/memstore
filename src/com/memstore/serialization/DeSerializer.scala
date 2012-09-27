@@ -14,6 +14,9 @@ import com.memstore.Types.{Entity, Index}
 import com.memstore.serialization.Serialization.PBValue
 import com.memstore.entity.EntityManager
 import com.memstore.entity.EntityData
+import com.memstore.serialization.Serialization.PBMetaData
+import com.memstore.entity.CompactEntityMetaData
+import com.memstore.entity.impl.cepb.CEPBMetaData
 
 
 object DeSerializer {
@@ -30,7 +33,21 @@ object DeSerializer {
     val primaryIndexMap = (0 until pbed.getEntityTimelineCount()).foldLeft(Map[Any, EntityTimeline]()) {(map, index) => 
       map + (pbValueToValue(pbed.getPrimaryIndexKey(index)) -> deSerializeEntityTimeline(pbed.getEntityTimeline(index)))
     }
-    EntityData(null, pbed.getKeyColumn(), primaryIndexMap,Map[String, Index]())
+    EntityData(deSerializeMetaData(pbed.getMetaData()), pbed.getKeyColumn(), primaryIndexMap,Map[String, Index]())
+  }
+  
+  private def deSerializeMetaData(pbmd: PBMetaData): CompactEntityMetaData = {
+    val start = (Map[Int, String](), Map[String, Int]())
+    val (indexToColumnMap, columnToIndexMap) = pbmd.getColumnToIndexList().foldLeft(start) { (mapTuple, stringIndexPair) =>
+      (
+          mapTuple._1 + (stringIndexPair.getInt() -> stringIndexPair.getString()), 
+          mapTuple._2 + (stringIndexPair.getString() -> stringIndexPair.getInt())
+      )
+    }
+    val typeMap = pbmd.getIndexToTypeList().foldLeft(Map[Int, Class[_]]()) { (map, stringIndexPair) =>
+      map + (stringIndexPair.getInt() -> Class.forName(stringIndexPair.getString()))
+    }
+    CEPBMetaData(pbmd.getName(), columnToIndexMap, indexToColumnMap, typeMap, pbmd.getNotPooledColumnsList().toSet)
   }
   
   private def deSerializeEntityTimeline(pbet: PBEntityTimeline) : EntityTimeline = {

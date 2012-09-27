@@ -5,7 +5,7 @@ import com.memstore.entity.CompactEntityMetaData
 
 object CEPBMetaData{
   
-  def apply(name: String, notPooledcolumns: Seq[String]): CEPBMetaData = CEPBMetaData(name, Map(), Map(), Map(), Set(notPooledcolumns:_*), Set())
+  def apply(name: String, notPooledcolumns: Seq[String]): CEPBMetaData = CEPBMetaData(name, Map(), Map(), Map(), Set(notPooledcolumns:_*))
   
   private def updateMetaDataAndGetIndexList(emd: CEPBMetaData, entity: Entity): (CEPBMetaData, List[(Int, Any)]) = {
     val filteredMap = entity.filter(t => !(t._2 == null))
@@ -22,12 +22,7 @@ object CEPBMetaData{
           val newMap = emd.columnToIndexMap + (name -> index)
           val newReverseMap = emd.reverseMap + (index -> name)
           val newTypeMap = emd.typeMap + (index -> value.getClass)
-          val newNotPooledColumnsIndex = if(emd.notPooledColumnsName.contains(name)) {
-            emd.notPooledColumnsIndex + index
-          } else {
-            emd.notPooledColumnsIndex
-          }
-          (CEPBMetaData(emd.name, newMap, newReverseMap, newTypeMap, emd.notPooledColumnsName, newNotPooledColumnsIndex), (index -> value) :: indexValueList)
+          (CEPBMetaData(emd.name, newMap, newReverseMap, newTypeMap, emd.notPooledColumnsName), (index -> value) :: indexValueList)
         }
       }
     }
@@ -36,14 +31,14 @@ object CEPBMetaData{
 }
 
 case class CEPBMetaData(name: String, columnToIndexMap: Map[String, Int], reverseMap: Map[Int, String], 
-    typeMap: Map[Int, Class[_]], notPooledColumnsName: Set[String], notPooledColumnsIndex: Set[Int]) extends CompactEntityMetaData {
+    typeMap: Map[Int, Class[_]], notPooledColumnsName: Set[String]) extends CompactEntityMetaData {
   
   def getIndexesAndUpdateMetaData(e: Entity) = CEPBMetaData.updateMetaDataAndGetIndexList(this, e)
   
-  def poolValue(columnId: Int): Boolean = !notPooledColumnsIndex.contains(columnId)
+  def poolValue(columnId: Int): Boolean = !notPooledColumnsName.contains(indexToColumn(columnId))
   
   def getType(columnId: Int): Class[_] = typeMap(columnId)
   
-  def indexToColumn(columnId: Int): String = reverseMap(columnId) 
+  def indexToColumn(columnId: Int): String = reverseMap.getOrElse(columnId, null) 
 }
 
