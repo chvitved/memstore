@@ -7,22 +7,22 @@ object EntityTimeline {
   
   def apply() : EntityTimeline = EmptyEntityTimeline()
   
-  def get(date: Date, timeline: List[(Date, Option[CompactEntity])], map: Entity, metaData: CompactEntityMetaData) : Option[Entity] = {
+  def get(date: Date, timeline: List[(Date, Option[CompactEntity])], map: Entity, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Option[Entity] = {
     timeline match {
       case (eDate, ce) :: tail => {
         if (!date.before(eDate)) {
           //use this entity
           ce match {
-            case Some(ce) => Some(add(map, ce.get(metaData)))
+            case Some(ce) => Some(add(map, ce.get(metaData, pool)))
             case None => None
           }
         }else {
           //we are looking for a value older than the current one in the timeline
           val e: Entity = ce match {
-            case Some(ce) => add(map, ce.get(metaData))
+            case Some(ce) => add(map, ce.get(metaData, pool))
             case None => Map[String, Any]()
           }
-          get(date, tail, e, metaData)
+          get(date, tail, e, metaData, pool)
         }
       }
       case Nil => None
@@ -48,33 +48,33 @@ object EntityTimeline {
 
 case class ET(timeline: List[(Date, Option[CompactEntity])]) extends EntityTimeline{
   
-  def + (date: Date, entity: Entity, metaData: CompactEntityMetaData) : AddResult = {
-    val current = get(date, metaData)
-    if (!current.isEmpty && current.get == entity) AddResult(false, this, metaData)
+  def + (date: Date, entity: Entity, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : AddResult = {
+    val current = get(date, metaData, pool)
+    if (!current.isEmpty && current.get == entity) AddResult(false, this, metaData, pool)
     else {
-    	val (ce, newCeMetaData) = CompactEntity(entity, metaData)
-    	val (et, resultingMetaData) = timeline match {
-    	  case Nil =>  (ET((date, Some(ce)) :: timeline), newCeMetaData)
+    	val (ce, newCeMetaData, newPool) = CompactEntity(entity, metaData, pool)
+    	val (et, resultingMetaData, newPool1) = timeline match {
+    	  case Nil =>  (ET((date, Some(ce)) :: timeline), newCeMetaData, newPool)
     	  case head :: tail => {
     		if (date.before(head._1)) {
     			throw new Exception("data added must be the newest")
     		}
     		head._2 match {
-    		  case None => (ET((date, Some(ce)) :: head :: tail), newCeMetaData)
+    		  case None => (ET((date, Some(ce)) :: head :: tail), newCeMetaData, newPool)
     		  case Some(h) => {
-    		    val diffMap = diff(h, entity, metaData)
+    		    val diffMap = diff(h.get(metaData, pool), entity, metaData)
 				if (diffMap.isEmpty) {
 					throw new Exception("we should not get here");
 				} else {
 					Monitor.addDiff(metaData.name, diffMap)
-	    			val (ceDiff, newCeMetaData1) = CompactEntity(diffMap, newCeMetaData)
-	    			(ET((date, Some(ce)) :: (head._1, Some(ceDiff)) :: tail), newCeMetaData1) 
+	    			val (ceDiff, newCeMetaData1, newPool1) = CompactEntity(diffMap, newCeMetaData, newPool)
+	    			(ET((date, Some(ce)) :: (head._1, Some(ceDiff)) :: tail), newCeMetaData1, newPool1) 
 				}
     		  } 
     		}
     	  }
     	}
-    	AddResult(true, et, resultingMetaData)
+    	AddResult(true, et, resultingMetaData, newPool1)
     }
   }
   
@@ -91,8 +91,8 @@ case class ET(timeline: List[(Date, Option[CompactEntity])]) extends EntityTimel
    * first naive implementation
    * This method could probably be optimized by working directly on the compactentity itself
    */
-  private def diff(old: CompactEntity, nev: Entity, metaData: CompactEntityMetaData): Entity = {
-    val oldSet = old.get(metaData).elements.toSet
+  private def diff(old: Entity, nev: Entity, metaData: CompactEntityMetaData): Entity = {
+    val oldSet = old.elements.toSet
     val newSet = nev.elements.toSet
     val add = oldSet -- newSet
     val addKeys = add.map(_._1)
@@ -105,44 +105,44 @@ case class ET(timeline: List[(Date, Option[CompactEntity])]) extends EntityTimel
     }
   }
   
-  def get(date: Date, metaData: CompactEntityMetaData) : Option[Entity] = {
-      EntityTimeline.get(date, timeline, Map[String, Any](), metaData)
+  def get(date: Date, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Option[Entity] = {
+      EntityTimeline.get(date, timeline, Map[String, Any](), metaData, pool)
   }
 }
 
 abstract trait EntityTimeline {
   
   def timeline: List[(Date, Option[CompactEntity])]
-  def + (date: Date, entity: Entity, ceMetaData: CompactEntityMetaData) : AddResult
+  def + (date: Date, entity: Entity, ceMetaData: CompactEntityMetaData, pool: CompactEntityDataPool) : AddResult
   def - (date: Date) :EntityTimeline
-  def get(date: Date, metaData: CompactEntityMetaData) : Option[Entity]
-  def getNow(metaData: CompactEntityMetaData) : Option[Entity] = get(new Date(), metaData)
+  def get(date: Date, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Option[Entity]
+  def getNow(metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Option[Entity] = get(new Date(), metaData, pool)
 }
 
-case class AddResult(changed: Boolean, et: EntityTimeline, ceMetaData: CompactEntityMetaData)
+case class AddResult(changed: Boolean, et: EntityTimeline, ceMetaData: CompactEntityMetaData, pool: CompactEntityDataPool)
 
 case class EntityTimelineWithNoHistory(date: Date, ce: CompactEntity) extends EntityTimeline {
   def timeline: List[(Date, Option[CompactEntity])] = List[(Date, Option[CompactEntity])](date -> Some(ce)) 
-  def + (date: Date, entity: Entity, ceMetaData: CompactEntityMetaData): AddResult = {
+  def + (date: Date, entity: Entity, ceMetaData: CompactEntityMetaData, pool: CompactEntityDataPool): AddResult = {
     EntityTimeline.isAfter(date, this.date)
-    toET() + (date, entity, ceMetaData)
+    toET() + (date, entity, ceMetaData, pool)
   }
   def - (date: Date):EntityTimeline  = {
     EntityTimeline.isAfter(date, this.date)
 	toET() - date
   }
   private def toET() = ET(List[(Date, Option[CompactEntity])]((this.date, Some(this.ce))))
-  def get(date: Date, metaData: CompactEntityMetaData) : Option[Entity] = if (!(date before this.date)) Some(ce.get(metaData)) else None
+  def get(date: Date, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Option[Entity] = if (!(date before this.date)) Some(ce.get(metaData, pool)) else None
 }
 
 private case class EmptyEntityTimeline extends EntityTimeline {
   def timeline: List[(Date, Option[CompactEntity])] = List[(Date, Option[CompactEntity])]()
-  def + (date: Date, entity: Entity, ceMetaData: CompactEntityMetaData): AddResult = {
-    val (ce, metaData) = CompactEntity(entity, ceMetaData)
-    AddResult(true, EntityTimelineWithNoHistory(date, ce), metaData)
+  def + (date: Date, entity: Entity, ceMetaData: CompactEntityMetaData, pool: CompactEntityDataPool): AddResult = {
+    val (ce, metaData, newPool) = CompactEntity(entity, ceMetaData, pool)
+    AddResult(true, EntityTimelineWithNoHistory(date, ce), metaData, newPool)
   }
   def - (date: Date):EntityTimeline = {
     throw new Exception("cannot remove from empty entitytimeline")
   }
-  def get(date: Date, metaData: CompactEntityMetaData) : Option[Entity] = None
+  def get(date: Date, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Option[Entity] = None
 }

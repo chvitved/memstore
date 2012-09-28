@@ -10,7 +10,6 @@ import dk.trifork.sdm.model.CompleteDataset
 import java.util.Date
 import com.memstore.entity.EntityManager
 import com.memstore.Monitor
-import com.memstore.ValuePool
 
 object Loader {
   
@@ -34,7 +33,6 @@ object Loader {
 		  checkTimelines(em1)
 		  counter += 1
 		  printMem()
-		  printPools()
 		  Monitor.showAndClear()
 		  em1
 	  }
@@ -124,10 +122,4 @@ object Loader {
 	
 	var lastCePoolSize = 0;
 	var lastValuePoolSize = 0;
-	private def printPools() {
-	  val newValueSize = ValuePool.size
-	  println("value pool size " + newValueSize)
-	  println("value pool grown " + (newValueSize - lastValuePoolSize))
-	  lastValuePoolSize = newValueSize
-	}
 } 

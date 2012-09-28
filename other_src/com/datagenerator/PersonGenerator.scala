@@ -10,6 +10,7 @@ import com.memstore.util.Zip
 import com.memstore.serialization.DeSerializer
 import com.memstore.entity.EntityManager
 import com.memstore.entity.EntityConfig
+import com.memstore.serialization.Serialization.PBEntityManager
 
 object PersonGenerator extends App{
   
@@ -26,13 +27,21 @@ object PersonGenerator extends App{
 	  val em1 = em.addEntity(new EntityConfig("person", List("id")))
 	  val em2 = generate(1000000, em1)
 	  MemUtil.printMem()
+	  
 	  val t = System.currentTimeMillis
-	  val pbem = Serializer.serialize(em2)
-	  println("serialization took " + (System.currentTimeMillis - t))
-	  println("zipped size " + Zip.zip(pbem.toByteArray()).size)
-	  val t1 = System.currentTimeMillis
-	  DeSerializer.deSerialize(pbem)
-	  println("de-serialization took " + (System.currentTimeMillis - t1))
+	  em2.fullScan("person", new Date(), e => true)
+	  println("fullscan took" + (System.currentTimeMillis - t) + " millis")
+	  
+	  
+//	  val t = System.currentTimeMillis
+//	  val pbemBytes = Serializer.serialize(em2).toByteArray()
+//	  println("serialization took " + (System.currentTimeMillis - t))
+//	  println("zipped size " + Zip.zip(pbemBytes).size)
+//	  val t1 = System.currentTimeMillis
+//	  DeSerializer.deSerialize(PBEntityManager.parseFrom(pbemBytes))
+//	  println("de-serialization took " + (System.currentTimeMillis - t1))
+	  
+	  
 //	  for(i <- 0 to 1000) {
 //		  val res = Query("entity person where id = :1", Array[Any](scala.util.Random.nextInt(highestPersonId)), em, new Date())
 //		  println("id query size " + res.size)

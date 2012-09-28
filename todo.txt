@@ -3,6 +3,10 @@ Dette kan være problematisk, da man så ikke kan se der er indsat en ny værdi til
 Det kan f.eks være problematisk da vi checker man hele tiden indsætter nyere data. 
 Det kan vi ikke se når vi bare smider nogle indsættelser helt væk, hvis de er magen til forrige værdi
 
+the class Compactentity is used as factory for different ce implementations. This is not very elegant. refactor!
+
+datapool: count all entries, so objects are removed when they are not used
+
 probably remove ValuePool
 
 outstanding unit test
@@ -13,8 +17,6 @@ test tombstones in entitytimeline
 index tests
 entitytimeline removal
 
-make entities take less space by having pools for different types of values, and refer into these pools with by using the most space efficient primitive types, byte, short, char, int.
-This should be away of avoiding that every data element takes at least 64 bits because it is a pointer
 
 query stuff
 query planning

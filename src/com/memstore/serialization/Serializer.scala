@@ -15,12 +15,17 @@ import com.memstore.entity.CompactEntityMetaData
 import com.memstore.serialization.Serialization.PBMetaData
 import com.memstore.entity.impl.cepb.CEPBMetaData
 import com.memstore.serialization.Serialization.PBStringIntPair
+import com.memstore.serialization.Serialization.PBDataPool
+import com.memstore.entity.CompactEntityDataPool
+import com.memstore.entity.impl.cepb.CEPBDataPool
+import com.memstore.serialization.Serialization.PBDataPoolForType
+import scala.collection.JavaConversions._
 
 object Serializer {
   
   def serialize(em: EntityManager): PBEntityManager = {
     val time = System.currentTimeMillis
-	val pbemBuilder = PBEntityManager.newBuilder()
+	val pbemBuilder = PBEntityManager.newBuilder().setDatoapool(toPBDataPool(em.dataPool))
     em.map.values.foreach{ entityData =>
       val pbedBuilder = PBEntityData.newBuilder()
       pbedBuilder.setMetaData(toPBMetaData(entityData.metaData)).setKeyColumn(entityData.key)
@@ -42,6 +47,27 @@ object Serializer {
       pbemBuilder.addEntityData(pbedBuilder)
     }
     pbemBuilder.build()
+  }
+  
+  private def toPBDataPool(dataPool: CompactEntityDataPool): PBDataPool = {
+    dataPool match {
+      case pool: CEPBDataPool => {
+        toPBDataPool(pool)
+      }
+      case _ => throw new Exception("could not serialize datapool " + dataPool + " of class " + dataPool.getClass)
+    }
+  }
+  
+  private def toPBDataPool(dp: CEPBDataPool): PBDataPool = {
+    val builder = PBDataPool.newBuilder()
+    dp.map.foreach{case (clas, poolForType) => 
+      val b = PBDataPoolForType.newBuilder().setType(clas.getName())
+      val orderedValues = poolForType.map.elements.toArray //todo not very efficient
+      	.sortWith{(v1, v2) => v1._2 < v2._2}.map(_._1)
+      orderedValues.foreach(v =>b.addValue(toPBValue(v)))
+      builder.addPoolForType(b)
+    }
+    builder.build
   }
   
   private def toPBMetaData(md: CompactEntityMetaData) : PBMetaData = {
@@ -72,6 +98,9 @@ object Serializer {
       case s: String => vb.setString(s)
       case i: Int => vb.setInt(i)
       case l: Long => vb.setLong(l)
+      case t: com.memstore.entity.TombStone => vb.setTombstone(Tombstone.newBuilder.build)
+      case b: Boolean => vb.setBoolean(b)
+      case d: Double => vb.setDouble(d)
     }
     vb.build()
   }

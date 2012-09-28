@@ -23,78 +23,84 @@ object Main extends Application{
 
   val index = em2.get("Laegemiddel").indexes("drugname")
   val metaData = em2.get("Laegemiddel").metaData
+  val pool = em2.dataPool
   
-  {
-  val from = "A"
-  val to = "B"
-  val t1 = System.currentTimeMillis();
-  val res = index.range(from, to, new Date(), metaData)
-  println("Time " + (System.currentTimeMillis() - t1))
-  println("results " + res.size)
-  //val names = res.toList.map(_("navn").toString).toList.sorted
-  //names.foreach(println(_))
-  }
+  for(i <- 0 until 1) doStuff()
   
-  {
-  val from = "B"
-  val to = "C"
-  val t1 = System.currentTimeMillis();
-  val res = index.range(from, to, new Date(), metaData)
-  println("Time " + (System.currentTimeMillis() - t1))
-  println("results " + res.size)
-  //val names = res.toList.map(_("navn").toString).toList.sorted
-  //names.foreach(println(_))
-  }
   
-  {
-  val from = "Pan"
-  val to = "Pao"
-  val t1 = System.currentTimeMillis();
-  val res = index.range(from, to, new Date(), metaData)
-  println("Time " + (System.currentTimeMillis() - t1))
-  println("results " + res.size)
-  //val names = res.toList.map(_("navn").toString).toList.sorted
-  //names.foreach(println(_))
-  }
-  
-  val keyTime = System.currentTimeMillis()
-  
-  {
-  val t2 = System.currentTimeMillis();
-  val res1 = em2.get("Pakning", 520338L, new Date())
-  println("Time " + (System.currentTimeMillis() - t2))
-  }
-  
-  {
-  val t2 = System.currentTimeMillis();
-  val res1 = em2.get("Pakning", 420356L, new Date())
-  println("Time " + (System.currentTimeMillis() - t2))
-  }
-  
-  {
-  val t2 = System.currentTimeMillis();
-  val res1 = em2.get("Pakning", 504902L, new Date())
-  println("Time " + (System.currentTimeMillis() - t2))
-  }
-  
-  println("keyTime " + (System.currentTimeMillis() - keyTime))
-  
-  {
-  //scan
-  val predicate = (e: Entity) => e("navn").asInstanceOf[String].contains("em") 
-  val t2 = System.currentTimeMillis();
-  val res = em2.fullScan("Laegemiddel", new Date(), predicate)
-  println("fullscan time " + (System.currentTimeMillis() - t2))
-  println(res.size)
-  println(res.flatMap(_.get("navn")))
-  }
-  
-  {
-  //scan
-  val predicate = (e: Entity) => true 
-  val t2 = System.currentTimeMillis();
-  val res = em2.fullScan("Pakning", new Date(), predicate)
-  println("fullscan time " + (System.currentTimeMillis() - t2))
-  println(res.size)
-  }
+  private def doStuff() {
+	  {
+	  val from = "A"
+	  val to = "B"
+	  val t1 = System.currentTimeMillis();
+	  val res = index.range(from, to, new Date(), metaData, pool)
+	  println("Time " + (System.currentTimeMillis() - t1))
+	  println("results " + res.size)
+	  //val names = res.toList.map(_("navn").toString).toList.sorted
+	  //names.foreach(println(_))
+	  }
+	  
+	  {
+	  val from = "B"
+	  val to = "C"
+	  val t1 = System.currentTimeMillis();
+	  val res = index.range(from, to, new Date(), metaData, pool)
+	  println("Time " + (System.currentTimeMillis() - t1))
+	  println("results " + res.size)
+	  //val names = res.toList.map(_("navn").toString).toList.sorted
+	  //names.foreach(println(_))
+	  }
+	  
+	  {
+	  val from = "Pan"
+	  val to = "Pao"
+	  val t1 = System.currentTimeMillis();
+	  val res = index.range(from, to, new Date(), metaData, pool)
+	  println("Time " + (System.currentTimeMillis() - t1))
+	  println("results " + res.size)
+	  //val names = res.toList.map(_("navn").toString).toList.sorted
+	  //names.foreach(println(_))
+	  }
+	  
+	  val keyTime = System.currentTimeMillis()
+	  
+	  {
+	  val t2 = System.currentTimeMillis();
+	  val res1 = em2.get("Pakning", 520338L, new Date())
+	  println("Time " + (System.currentTimeMillis() - t2))
+	  }
+	  
+	  {
+	  val t2 = System.currentTimeMillis();
+	  val res1 = em2.get("Pakning", 420356L, new Date())
+	  println("Time " + (System.currentTimeMillis() - t2))
+	  }
+	  
+	  {
+	  val t2 = System.currentTimeMillis();
+	  val res1 = em2.get("Pakning", 504902L, new Date())
+	  println("Time " + (System.currentTimeMillis() - t2))
+	  }
+	  
+	  println("keyTime " + (System.currentTimeMillis() - keyTime))
+	  
+	  {
+	  //scan
+	  val predicate = (e: Entity) => e("navn").asInstanceOf[String].contains("em") 
+	  val t2 = System.currentTimeMillis();
+	  val res = em2.fullScan("Laegemiddel", new Date(), predicate)
+	  println("fullscan time " + (System.currentTimeMillis() - t2))
+	  println(res.size)
+	  println(res.flatMap(_.get("navn")))
+	  }
+	  
+	  {
+	  //scan
+	  val predicate = (e: Entity) => true 
+	  val t2 = System.currentTimeMillis();
+	  val res = em2.fullScan("Pakning", new Date(), predicate)
+	  println("fullscan time " + (System.currentTimeMillis() - t2))
+	  println(res.size)
+	  }
+ }
 }

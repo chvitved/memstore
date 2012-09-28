@@ -17,6 +17,10 @@ import com.memstore.entity.EntityData
 import com.memstore.serialization.Serialization.PBMetaData
 import com.memstore.entity.CompactEntityMetaData
 import com.memstore.entity.impl.cepb.CEPBMetaData
+import com.memstore.serialization.Serialization.PBDataPool
+import com.memstore.entity.CompactEntityDataPool
+import com.memstore.entity.impl.cepb.CEPBPoolForType
+import com.memstore.entity.impl.cepb.CEPBDataPool
 
 
 object DeSerializer {
@@ -26,7 +30,20 @@ object DeSerializer {
       val ed = deSerializeEntityData(pbed)
       map + (ed.metaData.name -> ed)
     }
-    EntityManager(map)
+    EntityManager(map, deSerializeDataPool(pbem.getDatoapool()))
+  }
+  
+  private def deSerializeDataPool(dataPool: PBDataPool) : CompactEntityDataPool = {
+    val map = dataPool.getPoolForTypeList().foldLeft(Map[Class[_], CEPBPoolForType]()) {(accMap, poolForType) =>
+      val indexedValues = for(i <- 0 until poolForType.getValueCount()) yield (i, poolForType.getValue(i))
+      val start = (Map[Any, Int](), Map[Int, Any]())
+      val (map, reverseMap) = indexedValues.foldLeft(start) {(mapTuple, indexAndValue) => 
+      	(mapTuple._1 + (pbValueToValue(indexAndValue._2) -> indexAndValue._1), (mapTuple._2 + (indexAndValue._1 -> pbValueToValue(indexAndValue._2))))
+      }
+      val clas = Class.forName(poolForType.getType())
+      accMap + (clas -> CEPBPoolForType(map, reverseMap))
+    }
+    CEPBDataPool(map)
   }
   
   private def deSerializeEntityData(pbed: PBEntityData) : EntityData = {
@@ -68,6 +85,9 @@ object DeSerializer {
     if (pbValue.hasInt) pbValue.getInt()
     else if (pbValue.hasLong) pbValue.getLong()
     else if(pbValue.hasString) pbValue.getString()
+    else if(pbValue.hasTombstone) com.memstore.entity.TombStone.tombStone
+    else if (pbValue.hasBoolean) pbValue.getBoolean()
+    else if(pbValue.hasDouble) pbValue.getDouble()
     else {
       throw new Exception("got pbvalue with an unknown value..." + pbValue)
     }

@@ -8,7 +8,8 @@ message PBEntity {
 }
 
 message PBEntityManager {
-	repeated PBEntityData entityData = 1;
+	required PBDataPool datoapool = 1;
+	repeated PBEntityData entityData = 2;
 }
 
 message PBEntityData {
@@ -24,6 +25,15 @@ message PBMetaData {
 	repeated PBStringIntPair columnToIndex = 2;
 	repeated PBStringIntPair indexToType = 3;
 	repeated string notPooledColumns = 4;
+}
+
+message PBDataPool {
+	repeated PBDataPoolForType poolForType = 1;
+}
+
+message PBDataPoolForType {
+	required string type = 1;
+	repeated PBValue value = 2;
 }
 
 message PBStringIntPair {
@@ -47,4 +57,7 @@ message PBValue {
 	optional string string = 1;
 	optional int32 int = 2;
 	optional int64 long = 3;
+	optional Tombstone tombstone = 4;
+	optional bool boolean = 5;
+	optional double double = 6;
 }

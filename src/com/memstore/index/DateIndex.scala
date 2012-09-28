@@ -6,6 +6,7 @@ import com.memstore.Types.Entity
 import com.memstore.index.DateIndex._
 import com.memstore.Types.EntityTimelineWithId
 import com.memstore.entity.CompactEntityMetaData
+import com.memstore.entity.CompactEntityDataPool
 
 /**
  * This is a very naive first implementation
@@ -50,11 +51,11 @@ class DateIndex private (map: Map[Any, EntityTimelineWithDateList]) {
     }
   }
   
-  def get(date: Date, metaData: CompactEntityMetaData) : Set[Entity] = {
+  def get(date: Date, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Set[Entity] = {
     map.values.foldLeft(Set[Entity]()) {(set, entityTimelineWithDateList) =>
       val et = entityTimelineWithDateList._1
       val dateList = entityTimelineWithDateList._2
-      if(existsInDateList(date, dateList)) set + et.get(date, metaData).get // could be implemented better
+      if(existsInDateList(date, dateList)) set + et.get(date, metaData, pool).get // could be implemented better
       else set
     }
   }

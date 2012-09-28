@@ -4,6 +4,7 @@ import com.memstore.Types.{Entity, Index}
 import java.util.Date
 import com.memstore.entity.EntityTimeline
 import com.memstore.entity.CompactEntityMetaData
+import com.memstore.entity.CompactEntityDataPool
 
 object Operator {
 	def getOperator(operation : String, columnName: String): Operator = {
@@ -31,7 +32,7 @@ abstract class Operator(private val columnName: String) {
 	  operator(e(columnName), param)
 	}
 	
-	def indexCode(index: Index, parameter: Any, date: Date, metaData: CompactEntityMetaData) : Set[Entity]
+	def indexCode(index: Index, parameter: Any, date: Date, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Set[Entity]
 
 }
 
@@ -41,14 +42,14 @@ case class EqualsOperator(columnName: String) extends Operator(columnName){
 		param1 == param2
 	}
 
-	override def indexCode(index: Index, parameter: Any, date: Date, metaData: CompactEntityMetaData) : Set[Entity] = {
-		index === (parameter, date, metaData)
+	override def indexCode(index: Index, parameter: Any, date: Date, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Set[Entity] = {
+		index === (parameter, date, metaData, pool)
 	}
 }
 
 case class LessThanOperator(columnName: String) extends Operator(columnName){
-	override def indexCode(index: Index, parameter: Any, date: Date, metaData: CompactEntityMetaData) : Set[Entity] = {
-		index < (parameter, date, metaData)
+	override def indexCode(index: Index, parameter: Any, date: Date, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Set[Entity] = {
+		index < (parameter, date, metaData, pool)
 	}
  
 	override def operator(param1: Any, param2: Any) = {
@@ -58,8 +59,8 @@ case class LessThanOperator(columnName: String) extends Operator(columnName){
 }
 
 case class BiggerThanOperator(columnName: String) extends Operator(columnName){
-	override def indexCode(index: Index, parameter: Any, date: Date, metaData: CompactEntityMetaData) : Set[Entity] = {
-		index > (parameter, date, metaData)
+	override def indexCode(index: Index, parameter: Any, date: Date, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Set[Entity] = {
+		index > (parameter, date, metaData, pool)
 	}
  
 	override def operator(param1: Any, param2: Any) = {
@@ -69,7 +70,7 @@ case class BiggerThanOperator(columnName: String) extends Operator(columnName){
 }
 
 case class EmptyOperator() extends Operator(null){
-  override def indexCode(index: Index, parameter: Any, date: Date, metaData: CompactEntityMetaData) : Set[Entity] = null
+  override def indexCode(index: Index, parameter: Any, date: Date, metaData: CompactEntityMetaData, pool: CompactEntityDataPool) : Set[Entity] = null
   override def operator(param1: Any, param2: Any) = true
   override def predicate(e: Entity, param: Any) : Boolean = true
 }

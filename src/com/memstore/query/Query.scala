@@ -22,7 +22,7 @@ object Query {
     val ed = em.get(queryAST.entity)
     val queryPlan = QueryPlanner.plan(queryAST, ed)
     val startQueryCodeTime = System.nanoTime
-    val res = QueryCode.queryCode(queryPlan, ed, parameters, date)
+    val res = QueryCode.queryCode(queryPlan, ed, em.dataPool, parameters, date)
     val doneTime = System.nanoTime
     println("done queriyng in " + TimeUtil.printNanos(doneTime - startTime))
     println("querycode took " + TimeUtil.printNanos(doneTime - startQueryCodeTime))

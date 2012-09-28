@@ -8,19 +8,20 @@ import com.memstore.query.parser.AndOperator
 import com.memstore.query.parser.OrOperator
 import com.memstore.entity.EntityData
 import com.memstore.entity.CompactEntityMetaData
+import com.memstore.entity.CompactEntityDataPool
 
 object QueryCode {
   
 	val limitForUsingIndex = 100;
   
-	def queryCode(exp: ExpressionPlan, ed: EntityData,  parameters: IndexedSeq[Any], date: Date): Set[Entity] = {
-	  expCode(exp, ed, parameters, date, Set[Entity](), false)
+	def queryCode(exp: ExpressionPlan, ed: EntityData,  pool: CompactEntityDataPool, parameters: IndexedSeq[Any], date: Date): Set[Entity] = {
+	  expCode(exp, ed, pool, parameters, date, Set[Entity](), false)
 	}
 
-	private def expCode(exp: ExpressionPlan, ed: EntityData,  parameters: IndexedSeq[Any], date: Date, resultSoFar: Set[Entity], intersect: Boolean): Set[Entity] = {
+	private def expCode(exp: ExpressionPlan, ed: EntityData, pool: CompactEntityDataPool, parameters: IndexedSeq[Any], date: Date, resultSoFar: Set[Entity], intersect: Boolean): Set[Entity] = {
 	  exp match {
-	    case e: InnerExpPlan => innerExpCode(e, ed, parameters, date, resultSoFar, intersect)
-	    case e: LeafExpPlan =>  leafExpCode(e, ed, parameters, date, resultSoFar, intersect)
+	    case e: InnerExpPlan => innerExpCode(e, ed, pool, parameters, date, resultSoFar, intersect)
+	    case e: LeafExpPlan =>  leafExpCode(e, ed, pool, parameters, date, resultSoFar, intersect)
 	  }
 	}
 	
@@ -30,18 +31,18 @@ object QueryCode {
    * 
    ************************************************/
 	
-  private def innerExpCode(expPlan: InnerExpPlan, ed: EntityData,  parameters: IndexedSeq[Any], date: Date, resultSoFar: Set[Entity], intersect: Boolean): Set[Entity] = {
+  private def innerExpCode(expPlan: InnerExpPlan, ed: EntityData, pool: CompactEntityDataPool, parameters: IndexedSeq[Any], date: Date, resultSoFar: Set[Entity], intersect: Boolean): Set[Entity] = {
     val groupedExpressions = group(expPlan.expressions)
     groupedExpressions.foldLeft(Set[Entity]()) {(set, ge) =>
-      set.union(groupCode(ge, ed, parameters, date, resultSoFar, intersect))
+      set.union(groupCode(ge, ed, pool, parameters, date, resultSoFar, intersect))
     }
   }
   
-  private def groupCode(group: List[ExpressionPlan], ed: EntityData, parameters: IndexedSeq[Any], date: Date, resultSoFar: Set[Entity], intersect: Boolean): Set[Entity] = {
+  private def groupCode(group: List[ExpressionPlan], ed: EntityData, pool: CompactEntityDataPool, parameters: IndexedSeq[Any], date: Date, resultSoFar: Set[Entity], intersect: Boolean): Set[Entity] = {
     val sorted = group.sort((e1, e2) => e1.score < e2.score)
-    val first = expCode(sorted.head, ed,  parameters, date, resultSoFar, intersect)
+    val first = expCode(sorted.head, ed, pool, parameters, date, resultSoFar, intersect)
 	sorted.tail.foldLeft(first) {(set, exp) =>
-		set intersect expCode(exp, ed,  parameters, date, resultSoFar, intersect)
+		set intersect expCode(exp, ed, pool, parameters, date, resultSoFar, intersect)
 	}
   }
   
@@ -66,53 +67,51 @@ object QueryCode {
   
   
   
-  
-  
   /************************************************
    * 
    * Code for leaf expressions
    * 
    ************************************************/
 	
-  private def leafExpCode(expPlan: LeafExpPlan, ed: EntityData,  parameters: IndexedSeq[Any], date: Date, resultSoFar: Set[Entity], intersect: Boolean): Set[Entity] = {
+  private def leafExpCode(expPlan: LeafExpPlan, ed: EntityData, pool: CompactEntityDataPool, parameters: IndexedSeq[Any], date: Date, resultSoFar: Set[Entity], intersect: Boolean): Set[Entity] = {
     val parameter = parameters(expPlan.exp.param.number -1) //querie parameters start from index 1 (like sql)
     if (intersect) {
       if (limitForUsingIndex < resultSoFar.size || expPlan.scanType == FullScan()) {
         filterResultsSoFar(resultSoFar, expPlan.operator, parameter)
       } else if (expPlan.scanType == primaryKeyScan()) {
-    	resultSoFar.intersect(useUniqueIndex(expPlan.operator, ed, parameter, date))
+    	resultSoFar.intersect(useUniqueIndex(expPlan.operator, ed, pool, parameter, date))
       } else if(expPlan.scanType == IndexScan()) {
-        resultSoFar.intersect(useIndex(expPlan, ed, parameter, date))
+        resultSoFar.intersect(useIndex(expPlan, ed, pool, parameter, date))
       } else {
         throw new Exception("should not get here")
       }
     } else {
       val res: Set[Entity] = expPlan.scanType match {
-        case ui: primaryKeyScan => useUniqueIndex(expPlan.operator, ed, parameter, date)
-        case u: IndexScan => useIndex(expPlan, ed, parameter, date)
-        case s: FullScan => scan(expPlan, ed, parameter, date)
+        case ui: primaryKeyScan => useUniqueIndex(expPlan.operator, ed, pool, parameter, date)
+        case u: IndexScan => useIndex(expPlan, ed, pool, parameter, date)
+        case s: FullScan => scan(expPlan, ed, pool, parameter, date)
       }
       resultSoFar.union(res)
     }
   }
   
-  private def scan(expPlan: LeafExpPlan, ed: EntityData,  parameter: Any, date: Date): Set[Entity] = {
+  private def scan(expPlan: LeafExpPlan, ed: EntityData,  pool: CompactEntityDataPool, parameter: Any, date: Date): Set[Entity] = {
     val entities = 
       for(et <- ed.primaryIndex.values;
-		e <- et.get(date, ed.metaData) if (expPlan.operator.predicate(e, parameter))
+		e <- et.get(date, ed.metaData, pool) if (expPlan.operator.predicate(e, parameter))
 	  ) yield e
 	  entities.toSet
   }
   
-  private def useIndex(expPlan: LeafExpPlan, ed: EntityData,  parameter: Any, date: Date): Set[Entity] = {
+  private def useIndex(expPlan: LeafExpPlan, ed: EntityData, pool: CompactEntityDataPool, parameter: Any, date: Date): Set[Entity] = {
     val index = ed.indexes(expPlan.exp.attribute)
-    expPlan.operator.indexCode(index, parameter, date, ed.metaData)
+    expPlan.operator.indexCode(index, parameter, date, ed.metaData, pool)
   }
   
-  private def useUniqueIndex(operator: Operator, ed: EntityData,  parameter: Any, date: Date): Set[Entity] = {
+  private def useUniqueIndex(operator: Operator, ed: EntityData, pool: CompactEntityDataPool, parameter: Any, date: Date): Set[Entity] = {
     operator match {
       case op: EqualsOperator => {
-        val e = for (et <- ed.primaryIndex.get(parameter); e <- et.get(date, ed.metaData)) yield e
+        val e = for (et <- ed.primaryIndex.get(parameter); e <- et.get(date, ed.metaData, pool)) yield e
         e match {
           case Some(e) => Set[Entity](e)
           case None => Set[Entity]()
