@@ -62,7 +62,7 @@ case class EntityData(metaData: CompactEntityMetaData, key: String, primaryIndex
     //primaryIndex.values.flatMap(_.get(date)).toSet
     //primaryIndex.values.collect{case Some(et) if(et.get(date) != null) => et.get(date)}.toSet
     val es = for (et <- primaryIndex.values; e <- et.get(date, metaData, pool); if (predicate(e))) yield e
-    es.toSet
+    es.toSet //TODO this could be done more efficient
   }
   
 }	

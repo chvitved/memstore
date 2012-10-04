@@ -25,8 +25,7 @@ object Main extends Application{
   val metaData = em2.get("Laegemiddel").metaData
   val pool = em2.dataPool
   
-  for(i <- 0 until 1) doStuff()
-  
+  for(i <- 0 until 3) doStuff()
   
   private def doStuff() {
 	  {
@@ -89,17 +88,17 @@ object Main extends Application{
 	  val predicate = (e: Entity) => e("navn").asInstanceOf[String].contains("em") 
 	  val t2 = System.currentTimeMillis();
 	  val res = em2.fullScan("Laegemiddel", new Date(), predicate)
-	  println("fullscan time " + (System.currentTimeMillis() - t2))
+	  println("fullscan l¾gemidler time " + (System.currentTimeMillis() - t2))
 	  println(res.size)
 	  println(res.flatMap(_.get("navn")))
 	  }
 	  
 	  {
 	  //scan
-	  val predicate = (e: Entity) => true 
+	  val predicate = (e: Entity) => true
 	  val t2 = System.currentTimeMillis();
 	  val res = em2.fullScan("Pakning", new Date(), predicate)
-	  println("fullscan time " + (System.currentTimeMillis() - t2))
+	  println("fullscan pakninger time " + (System.currentTimeMillis() - t2))
 	  println(res.size)
 	  }
  }

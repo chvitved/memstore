@@ -64,9 +64,16 @@ object CEPB {
 	}
     
     val columnAndPoolIndexTuples =  indexes.zip(pbe.getPoolIndexesList())
-    val values = columnAndPoolIndexTuples.map{case (columnIndex, poolIndex) => pool.indexToValue(poolIndex, metaData.getType(columnIndex))}
+    val values = columnAndPoolIndexTuples.map{case (columnIndex, poolIndex) => getValueFromIndex(poolIndex, columnIndex, pool, metaData)}
     val e = Map[String, Any](indexes.map(metaData.indexToColumn(_)).zip(values):_*)
     e
+  }
+  
+  private def getValueFromIndex(poolIndex: Int, columnIndex: Int, pool: CEPBDataPool, metaData: CEPBMetaData) : Any = {
+    if (metaData.poolValue(columnIndex)) {
+    	val clas = metaData.getType(columnIndex)
+    	pool.indexToValue(poolIndex, clas)
+    } else poolIndex
   }
   
   private def containsIndex(pbe: PBEntity, index: Int): Boolean = {
