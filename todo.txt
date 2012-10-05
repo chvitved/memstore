@@ -3,6 +3,8 @@ Dette kan være problematisk, da man så ikke kan se der er indsat en ny værdi til
 Det kan f.eks være problematisk da vi checker man hele tiden indsætter nyere data. 
 Det kan vi ikke se når vi bare smider nogle indsættelser helt væk, hvis de er magen til forrige værdi
 
+remove warnings when compiling
+
 the class Compactentity is used as factory for different ce implementations. This is not very elegant. refactor!
 
 datapool: count all entries, so objects are removed when they are not used

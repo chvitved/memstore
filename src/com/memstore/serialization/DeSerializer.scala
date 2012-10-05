@@ -21,6 +21,7 @@ import com.memstore.serialization.Serialization.PBDataPool
 import com.memstore.entity.CompactEntityDataPool
 import com.memstore.entity.impl.cepb.CEPBPoolForType
 import com.memstore.entity.impl.cepb.CEPBDataPool
+import com.memstore.pbutils.PBUtils
 
 
 object DeSerializer {
@@ -38,7 +39,7 @@ object DeSerializer {
       val indexedValues = for(i <- 0 until poolForType.getValueCount()) yield (i, poolForType.getValue(i))
       val start = (Map[Any, Int](), Map[Int, Any]())
       val (map, reverseMap) = indexedValues.foldLeft(start) {(mapTuple, indexAndValue) => 
-      	(mapTuple._1 + (pbValueToValue(indexAndValue._2) -> indexAndValue._1), (mapTuple._2 + (indexAndValue._1 -> pbValueToValue(indexAndValue._2))))
+      	(mapTuple._1 + (PBUtils.toValue(indexAndValue._2) -> indexAndValue._1), (mapTuple._2 + (indexAndValue._1 -> PBUtils.toValue(indexAndValue._2))))
       }
       val clas = Class.forName(poolForType.getType())
       accMap + (clas -> CEPBPoolForType(map, reverseMap))
@@ -48,7 +49,7 @@ object DeSerializer {
   
   private def deSerializeEntityData(pbed: PBEntityData) : EntityData = {
     val primaryIndexMap = (0 until pbed.getEntityTimelineCount()).foldLeft(Map[Any, EntityTimeline]()) {(map, index) => 
-      map + (pbValueToValue(pbed.getPrimaryIndexKey(index)) -> deSerializeEntityTimeline(pbed.getEntityTimeline(index)))
+      map + (PBUtils.toValue(pbed.getPrimaryIndexKey(index)) -> deSerializeEntityTimeline(pbed.getEntityTimeline(index)))
     }
     EntityData(deSerializeMetaData(pbed.getMetaData()), pbed.getKeyColumn(), primaryIndexMap,Map[String, Index]())
   }
@@ -79,18 +80,6 @@ object DeSerializer {
       }
       ET(timeline)
     } else throw new Exception("we should not have serialized an empty entitytimeline")
-  }
-  
-  private def pbValueToValue(pbValue: PBValue) : Any = {
-    if (pbValue.hasInt) pbValue.getInt()
-    else if (pbValue.hasLong) pbValue.getLong()
-    else if(pbValue.hasString) pbValue.getString()
-    else if(pbValue.hasTombstone) com.memstore.entity.TombStone.tombStone
-    else if (pbValue.hasBoolean) pbValue.getBoolean()
-    else if(pbValue.hasDouble) pbValue.getDouble()
-    else {
-      throw new Exception("got pbvalue with an unknown value..." + pbValue)
-    }
   }
   
   private def pbEntityTimelineValueToCompactEntity(pbetV: PBEntityTimelineValue) : Option[CompactEntity] = {

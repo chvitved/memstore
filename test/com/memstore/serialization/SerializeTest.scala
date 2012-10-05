@@ -4,12 +4,14 @@ import org.junit.Test
 import org.junit.Assert._
 import com.memstore.entity.EntityManager
 import java.util.Date
+import com.memstore.entity.EntityConfig
 
 class SerializeTest {
   
   @Test
   def serialize {
-    val em = EntityManager()
+	val em = EntityManager()
+    val em1 = em.addEntity(new EntityConfig("a", List("id")))
     val a = "a"
     val b = "b"
 
@@ -24,8 +26,8 @@ class SerializeTest {
     val a2 = Map[String, Any]("id"->2, "a"->"hello")
     val a2Mark = Map[String, Any]("id"->2, "a"->"hello1", "c"-> 5L)
     
-    val em1 = em.add(a, t1, a1).add(a, t2, a1Mark).add(a, t3, a1MarkMark)
-    val em2 = em1.add(a, t1, a2).add(a, t2, a2Mark)
+    val em2 = em1.add(a, t1, a1).add(a, t2, a1Mark).add(a, t3, a1MarkMark)
+    val em3 = em2.add(a, t1, a2).add(a, t2, a2Mark)
     
 
     val b1 = Map[String, Any]("id"->1, "b"->"hello")
@@ -33,14 +35,14 @@ class SerializeTest {
     
     val b2 = Map[String, Any]("id"->2, "b"->5)
     
-    val em3 = em2.add(b, t1, b1).add(b, t2, b1Mark).remove(b, t3, 1) //note also a delete
-    val em4 = em3.add(b, t1, b2)
+    val em4 = em3.add(b, t1, b1).add(b, t2, b1Mark).remove(b, t3, 1) //note also a delete
+    val em5 = em4.add(b, t1, b2)
     
-    val pbem = Serializer.serialize(em4)
+    val pbem = Serializer.serialize(em5)
    
     val restoredEm = DeSerializer.deSerialize(pbem)
     
-    assertEquals(em4, restoredEm)
+    assertEquals(em5, restoredEm)
    
     
   }

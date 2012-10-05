@@ -35,15 +35,15 @@ public final class Serialization {
       return com.memstore.serialization.Serialization.internal_static_com_memstore_PBEntity_fieldAccessorTable;
     }
     
-    // required uint32 bitmap = 2;
-    public static final int BITMAP_FIELD_NUMBER = 2;
+    // required uint32 bitmap = 1;
+    public static final int BITMAP_FIELD_NUMBER = 1;
     private boolean hasBitmap;
     private int bitmap_ = 0;
     public boolean hasBitmap() { return hasBitmap; }
     public int getBitmap() { return bitmap_; }
     
-    // repeated uint32 poolIndexes = 3;
-    public static final int POOLINDEXES_FIELD_NUMBER = 3;
+    // repeated uint32 poolIndexes = 2;
+    public static final int POOLINDEXES_FIELD_NUMBER = 2;
     private java.util.List<java.lang.Integer> poolIndexes_ =
       java.util.Collections.emptyList();
     public java.util.List<java.lang.Integer> getPoolIndexesList() {
@@ -52,6 +52,25 @@ public final class Serialization {
     public int getPoolIndexesCount() { return poolIndexes_.size(); }
     public int getPoolIndexes(int index) {
       return poolIndexes_.get(index);
+    }
+    
+    // optional uint32 notPooledBitmap = 3;
+    public static final int NOTPOOLEDBITMAP_FIELD_NUMBER = 3;
+    private boolean hasNotPooledBitmap;
+    private int notPooledBitmap_ = 0;
+    public boolean hasNotPooledBitmap() { return hasNotPooledBitmap; }
+    public int getNotPooledBitmap() { return notPooledBitmap_; }
+    
+    // repeated .com.memstore.PBValue notPooledValue = 4;
+    public static final int NOTPOOLEDVALUE_FIELD_NUMBER = 4;
+    private java.util.List<com.memstore.serialization.Serialization.PBValue> notPooledValue_ =
+      java.util.Collections.emptyList();
+    public java.util.List<com.memstore.serialization.Serialization.PBValue> getNotPooledValueList() {
+      return notPooledValue_;
+    }
+    public int getNotPooledValueCount() { return notPooledValue_.size(); }
+    public com.memstore.serialization.Serialization.PBValue getNotPooledValue(int index) {
+      return notPooledValue_.get(index);
     }
     
     private void initFields() {
@@ -65,10 +84,16 @@ public final class Serialization {
                         throws java.io.IOException {
       getSerializedSize();
       if (hasBitmap()) {
-        output.writeUInt32(2, getBitmap());
+        output.writeUInt32(1, getBitmap());
       }
       for (int element : getPoolIndexesList()) {
-        output.writeUInt32(3, element);
+        output.writeUInt32(2, element);
+      }
+      if (hasNotPooledBitmap()) {
+        output.writeUInt32(3, getNotPooledBitmap());
+      }
+      for (com.memstore.serialization.Serialization.PBValue element : getNotPooledValueList()) {
+        output.writeMessage(4, element);
       }
       getUnknownFields().writeTo(output);
     }
@@ -81,7 +106,7 @@ public final class Serialization {
       size = 0;
       if (hasBitmap()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(2, getBitmap());
+          .computeUInt32Size(1, getBitmap());
       }
       {
         int dataSize = 0;
@@ -91,6 +116,14 @@ public final class Serialization {
         }
         size += dataSize;
         size += 1 * getPoolIndexesList().size();
+      }
+      if (hasNotPooledBitmap()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(3, getNotPooledBitmap());
+      }
+      for (com.memstore.serialization.Serialization.PBValue element : getNotPooledValueList()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, element);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -238,6 +271,10 @@ public final class Serialization {
           result.poolIndexes_ =
             java.util.Collections.unmodifiableList(result.poolIndexes_);
         }
+        if (result.notPooledValue_ != java.util.Collections.EMPTY_LIST) {
+          result.notPooledValue_ =
+            java.util.Collections.unmodifiableList(result.notPooledValue_);
+        }
         com.memstore.serialization.Serialization.PBEntity returnMe = result;
         result = null;
         return returnMe;
@@ -262,6 +299,15 @@ public final class Serialization {
             result.poolIndexes_ = new java.util.ArrayList<java.lang.Integer>();
           }
           result.poolIndexes_.addAll(other.poolIndexes_);
+        }
+        if (other.hasNotPooledBitmap()) {
+          setNotPooledBitmap(other.getNotPooledBitmap());
+        }
+        if (!other.notPooledValue_.isEmpty()) {
+          if (result.notPooledValue_.isEmpty()) {
+            result.notPooledValue_ = new java.util.ArrayList<com.memstore.serialization.Serialization.PBValue>();
+          }
+          result.notPooledValue_.addAll(other.notPooledValue_);
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -288,15 +334,15 @@ public final class Serialization {
               }
               break;
             }
-            case 16: {
+            case 8: {
               setBitmap(input.readUInt32());
               break;
             }
-            case 24: {
+            case 16: {
               addPoolIndexes(input.readUInt32());
               break;
             }
-            case 26: {
+            case 18: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
               while (input.getBytesUntilLimit() > 0) {
@@ -305,12 +351,22 @@ public final class Serialization {
               input.popLimit(limit);
               break;
             }
+            case 24: {
+              setNotPooledBitmap(input.readUInt32());
+              break;
+            }
+            case 34: {
+              com.memstore.serialization.Serialization.PBValue.Builder subBuilder = com.memstore.serialization.Serialization.PBValue.newBuilder();
+              input.readMessage(subBuilder, extensionRegistry);
+              addNotPooledValue(subBuilder.buildPartial());
+              break;
+            }
           }
         }
       }
       
       
-      // required uint32 bitmap = 2;
+      // required uint32 bitmap = 1;
       public boolean hasBitmap() {
         return result.hasBitmap();
       }
@@ -328,7 +384,7 @@ public final class Serialization {
         return this;
       }
       
-      // repeated uint32 poolIndexes = 3;
+      // repeated uint32 poolIndexes = 2;
       public java.util.List<java.lang.Integer> getPoolIndexesList() {
         return java.util.Collections.unmodifiableList(result.poolIndexes_);
       }
@@ -359,6 +415,75 @@ public final class Serialization {
       }
       public Builder clearPoolIndexes() {
         result.poolIndexes_ = java.util.Collections.emptyList();
+        return this;
+      }
+      
+      // optional uint32 notPooledBitmap = 3;
+      public boolean hasNotPooledBitmap() {
+        return result.hasNotPooledBitmap();
+      }
+      public int getNotPooledBitmap() {
+        return result.getNotPooledBitmap();
+      }
+      public Builder setNotPooledBitmap(int value) {
+        result.hasNotPooledBitmap = true;
+        result.notPooledBitmap_ = value;
+        return this;
+      }
+      public Builder clearNotPooledBitmap() {
+        result.hasNotPooledBitmap = false;
+        result.notPooledBitmap_ = 0;
+        return this;
+      }
+      
+      // repeated .com.memstore.PBValue notPooledValue = 4;
+      public java.util.List<com.memstore.serialization.Serialization.PBValue> getNotPooledValueList() {
+        return java.util.Collections.unmodifiableList(result.notPooledValue_);
+      }
+      public int getNotPooledValueCount() {
+        return result.getNotPooledValueCount();
+      }
+      public com.memstore.serialization.Serialization.PBValue getNotPooledValue(int index) {
+        return result.getNotPooledValue(index);
+      }
+      public Builder setNotPooledValue(int index, com.memstore.serialization.Serialization.PBValue value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.notPooledValue_.set(index, value);
+        return this;
+      }
+      public Builder setNotPooledValue(int index, com.memstore.serialization.Serialization.PBValue.Builder builderForValue) {
+        result.notPooledValue_.set(index, builderForValue.build());
+        return this;
+      }
+      public Builder addNotPooledValue(com.memstore.serialization.Serialization.PBValue value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        if (result.notPooledValue_.isEmpty()) {
+          result.notPooledValue_ = new java.util.ArrayList<com.memstore.serialization.Serialization.PBValue>();
+        }
+        result.notPooledValue_.add(value);
+        return this;
+      }
+      public Builder addNotPooledValue(com.memstore.serialization.Serialization.PBValue.Builder builderForValue) {
+        if (result.notPooledValue_.isEmpty()) {
+          result.notPooledValue_ = new java.util.ArrayList<com.memstore.serialization.Serialization.PBValue>();
+        }
+        result.notPooledValue_.add(builderForValue.build());
+        return this;
+      }
+      public Builder addAllNotPooledValue(
+          java.lang.Iterable<? extends com.memstore.serialization.Serialization.PBValue> values) {
+        if (result.notPooledValue_.isEmpty()) {
+          result.notPooledValue_ = new java.util.ArrayList<com.memstore.serialization.Serialization.PBValue>();
+        }
+        super.addAll(values, result.notPooledValue_);
+        return this;
+      }
+      public Builder clearNotPooledValue() {
+        result.notPooledValue_ = java.util.Collections.emptyList();
         return this;
       }
       
@@ -4490,34 +4615,36 @@ public final class Serialization {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\023serialization.proto\022\014com.memstore\"/\n\010P" +
-      "BEntity\022\016\n\006bitmap\030\002 \002(\r\022\023\n\013poolIndexes\030\003" +
-      " \003(\r\"n\n\017PBEntityManager\022+\n\tdatoapool\030\001 \002" +
-      "(\0132\030.com.memstore.PBDataPool\022.\n\nentityDa" +
-      "ta\030\002 \003(\0132\032.com.memstore.PBEntityData\"\265\001\n" +
-      "\014PBEntityData\022*\n\010metaData\030\001 \002(\0132\030.com.me" +
-      "mstore.PBMetaData\022\021\n\tkeyColumn\030\002 \002(\t\022.\n\017" +
-      "primaryIndexKey\030\003 \003(\0132\025.com.memstore.PBV" +
-      "alue\0226\n\016entityTimeline\030\004 \003(\0132\036.com.memst" +
-      "ore.PBEntityTimeline\"\236\001\n\nPBMetaData\022\014\n\004n",
-      "ame\030\001 \002(\t\0224\n\rcolumnToIndex\030\002 \003(\0132\035.com.m" +
-      "emstore.PBStringIntPair\0222\n\013indexToType\030\003" +
-      " \003(\0132\035.com.memstore.PBStringIntPair\022\030\n\020n" +
-      "otPooledColumns\030\004 \003(\t\"B\n\nPBDataPool\0224\n\013p" +
-      "oolForType\030\001 \003(\0132\037.com.memstore.PBDataPo" +
-      "olForType\"G\n\021PBDataPoolForType\022\014\n\004type\030\001" +
-      " \002(\t\022$\n\005value\030\002 \003(\0132\025.com.memstore.PBVal" +
-      "ue\".\n\017PBStringIntPair\022\016\n\006string\030\001 \002(\t\022\013\n" +
-      "\003int\030\002 \002(\r\"T\n\020PBEntityTimeline\022\014\n\004date\030\001" +
-      " \003(\004\0222\n\005value\030\002 \003(\0132#.com.memstore.PBEnt",
-      "ityTimelineValue\"k\n\025PBEntityTimelineValu" +
-      "e\022*\n\ttombstone\030\001 \001(\0132\027.com.memstore.Tomb" +
-      "stone\022&\n\006entity\030\002 \001(\0132\026.com.memstore.PBE" +
-      "ntity\"\013\n\tTombstone\"\201\001\n\007PBValue\022\016\n\006string" +
-      "\030\001 \001(\t\022\013\n\003int\030\002 \001(\005\022\014\n\004long\030\003 \001(\003\022*\n\ttom" +
-      "bstone\030\004 \001(\0132\027.com.memstore.Tombstone\022\017\n" +
-      "\007boolean\030\005 \001(\010\022\016\n\006double\030\006 \001(\001B\034\n\032com.me" +
-      "mstore.serialization"
+      "\n\023serialization.proto\022\014com.memstore\"w\n\010P" +
+      "BEntity\022\016\n\006bitmap\030\001 \002(\r\022\023\n\013poolIndexes\030\002" +
+      " \003(\r\022\027\n\017notPooledBitmap\030\003 \001(\r\022-\n\016notPool" +
+      "edValue\030\004 \003(\0132\025.com.memstore.PBValue\"n\n\017" +
+      "PBEntityManager\022+\n\tdatoapool\030\001 \002(\0132\030.com" +
+      ".memstore.PBDataPool\022.\n\nentityData\030\002 \003(\013" +
+      "2\032.com.memstore.PBEntityData\"\265\001\n\014PBEntit" +
+      "yData\022*\n\010metaData\030\001 \002(\0132\030.com.memstore.P" +
+      "BMetaData\022\021\n\tkeyColumn\030\002 \002(\t\022.\n\017primaryI" +
+      "ndexKey\030\003 \003(\0132\025.com.memstore.PBValue\0226\n\016",
+      "entityTimeline\030\004 \003(\0132\036.com.memstore.PBEn" +
+      "tityTimeline\"\236\001\n\nPBMetaData\022\014\n\004name\030\001 \002(" +
+      "\t\0224\n\rcolumnToIndex\030\002 \003(\0132\035.com.memstore." +
+      "PBStringIntPair\0222\n\013indexToType\030\003 \003(\0132\035.c" +
+      "om.memstore.PBStringIntPair\022\030\n\020notPooled" +
+      "Columns\030\004 \003(\t\"B\n\nPBDataPool\0224\n\013poolForTy" +
+      "pe\030\001 \003(\0132\037.com.memstore.PBDataPoolForTyp" +
+      "e\"G\n\021PBDataPoolForType\022\014\n\004type\030\001 \002(\t\022$\n\005" +
+      "value\030\002 \003(\0132\025.com.memstore.PBValue\".\n\017PB" +
+      "StringIntPair\022\016\n\006string\030\001 \002(\t\022\013\n\003int\030\002 \002",
+      "(\r\"T\n\020PBEntityTimeline\022\014\n\004date\030\001 \003(\004\0222\n\005" +
+      "value\030\002 \003(\0132#.com.memstore.PBEntityTimel" +
+      "ineValue\"k\n\025PBEntityTimelineValue\022*\n\ttom" +
+      "bstone\030\001 \001(\0132\027.com.memstore.Tombstone\022&\n" +
+      "\006entity\030\002 \001(\0132\026.com.memstore.PBEntity\"\013\n" +
+      "\tTombstone\"\201\001\n\007PBValue\022\016\n\006string\030\001 \001(\t\022\013" +
+      "\n\003int\030\002 \001(\005\022\014\n\004long\030\003 \001(\003\022*\n\ttombstone\030\004" +
+      " \001(\0132\027.com.memstore.Tombstone\022\017\n\007boolean" +
+      "\030\005 \001(\010\022\016\n\006double\030\006 \001(\001B\034\n\032com.memstore.s" +
+      "erialization"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -4529,7 +4656,7 @@ public final class Serialization {
           internal_static_com_memstore_PBEntity_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_com_memstore_PBEntity_descriptor,
-              new java.lang.String[] { "Bitmap", "PoolIndexes", },
+              new java.lang.String[] { "Bitmap", "PoolIndexes", "NotPooledBitmap", "NotPooledValue", },
               com.memstore.serialization.Serialization.PBEntity.class,
               com.memstore.serialization.Serialization.PBEntity.Builder.class);
           internal_static_com_memstore_PBEntityManager_descriptor =

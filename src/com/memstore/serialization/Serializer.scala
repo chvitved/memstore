@@ -20,6 +20,7 @@ import com.memstore.entity.CompactEntityDataPool
 import com.memstore.entity.impl.cepb.CEPBDataPool
 import com.memstore.serialization.Serialization.PBDataPoolForType
 import scala.collection.JavaConversions._
+import com.memstore.pbutils.PBUtils
 
 object Serializer {
   
@@ -30,7 +31,7 @@ object Serializer {
       val pbedBuilder = PBEntityData.newBuilder()
       pbedBuilder.setMetaData(toPBMetaData(entityData.metaData)).setKeyColumn(entityData.key)
       entityData.primaryIndex.elements.foreach{ case(key, entityTimeline) =>
-        pbedBuilder.addPrimaryIndexKey(toPBValue(key))
+        pbedBuilder.addPrimaryIndexKey(PBUtils.toPBValue(key))
         val pbetBuilder = PBEntityTimeline.newBuilder()
 		entityTimeline.timeline.foreach{ case(date, ceOption) =>
 		  pbetBuilder.addDate(date.getTime)
@@ -64,7 +65,7 @@ object Serializer {
       val b = PBDataPoolForType.newBuilder().setType(clas.getName())
       val orderedValues = poolForType.map.elements.toArray //todo not very efficient
       	.sortWith{(v1, v2) => v1._2 < v2._2}.map(_._1)
-      orderedValues.foreach(v =>b.addValue(toPBValue(v)))
+      orderedValues.foreach(v =>b.addValue(PBUtils.toPBValue(v)))
       builder.addPoolForType(b)
     }
     builder.build
@@ -92,17 +93,4 @@ object Serializer {
   
   private def toPBStringIntPair(string: String, int: Int) = PBStringIntPair.newBuilder().setString(string).setInt(int)
   
-  private def toPBValue(value: Any): PBValue = {
-    val vb = PBValue.newBuilder()
-    value match {
-      case s: String => vb.setString(s)
-      case i: Int => vb.setInt(i)
-      case l: Long => vb.setLong(l)
-      case t: com.memstore.entity.TombStone => vb.setTombstone(Tombstone.newBuilder.build)
-      case b: Boolean => vb.setBoolean(b)
-      case d: Double => vb.setDouble(d)
-    }
-    vb.build()
-  }
-
 }

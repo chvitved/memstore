@@ -70,6 +70,19 @@ class EntityTest {
     
   }
   
+  @Test
+  def testNotPooled() {
+    val p = CompactEntity.emptyDataPool
+    val id: Int = 1
+    val ed = EntityData(new EntityConfig("test", List("id")))
+    val map = Map[String, Any](("id" -> id), ("a" -> "hello"))
+    val t1 = new Date(1000L)
+    
+    //add value
+    val (ed2, p2) = ed + (t1, map, p)
+    assertEquals(Some(map), ed2(id, t1, p2))
+  }
+  
   @Test(expected=classOf[Exception])
   def testNewEntitiesMustBeNewest() {
     val md = CompactEntity.emptyDataPool

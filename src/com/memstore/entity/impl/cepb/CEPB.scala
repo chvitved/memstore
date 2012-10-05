@@ -7,6 +7,7 @@ import com.memstore.serialization.Serialization.PBEntity
 import java.util.Arrays
 import com.memstore.entity.CompactEntityMetaData
 import com.memstore.entity.CompactEntityDataPool
+import com.memstore.pbutils.PBUtils
 
 object CEPB {
   
@@ -20,17 +21,26 @@ object CEPB {
     
     val sortedValues = indexValueTuples.toArray.sortWith{(v1, v2) => v1._1 < v2._1} 
     
-    val indexBitmap = sortedValues.map(_._1).foldLeft(0){(acc, index) => acc | (1 << index)}
-    
-    val (newPool, svDataPoolIndexes) = sortedValues.foldRight((pool, List[Int]())) {(value, tuple) =>
+    //pooled values
+    val sortedPooledValues = sortedValues.filter(t => newMetaData.poolValue(t._1))
+    val indexBitmap = sortedPooledValues.map(_._1).foldLeft(0){(acc, index) => acc | (1 << index)}
+    val (newPool, svDataPoolIndexes) = sortedPooledValues.foldRight((pool, List[Int]())) {(value, tuple) =>
       val pool = tuple._1
       val indexList = tuple._2
-      val (index, newPool) = maybePool(value, pool, metaData)
+      val (index, newPool) = pool.index(value._2)
       (newPool, index :: indexList)
     }
-	
-	val b = PBEntity.newBuilder().setBitmap(indexBitmap)
+    val b = PBEntity.newBuilder().setBitmap(indexBitmap)
 	svDataPoolIndexes.foreach(b.addPoolIndexes(_))
+    
+    //not pooled values
+    val sortedNotPooledValues = sortedValues.filter(t => !newMetaData.poolValue(t._1))
+    val notPooledBitmap = sortedNotPooledValues.map(_._1).foldLeft(0){(acc, index) => acc | (1 << index)}
+    val notPooledValues = sortedNotPooledValues.map(_._2)
+	
+    b.setNotPooledBitmap(notPooledBitmap)
+    notPooledValues.foreach(v => b.addNotPooledValue(PBUtils.toPBValue(v)))
+	
 	val bytes = b.build.toByteArray()
 	val cepb = new CEPB(bytes)
 	
@@ -57,27 +67,33 @@ object CEPB {
     val pool = dataPool.asInstanceOf[CEPBDataPool]
     val metaData = compactEntityMetaData.asInstanceOf[CEPBMetaData]
     val pbe = PBEntity.parseFrom(pbeBytes)
-    val indexes = (0 to 31).foldRight(List[Int]()) {(index, indexList) => 
-	    if (containsIndex(pbe, index)) {
-	      index :: indexList
-	    } else indexList
-	}
     
-    val columnAndPoolIndexTuples =  indexes.zip(pbe.getPoolIndexesList())
-    val values = columnAndPoolIndexTuples.map{case (columnIndex, poolIndex) => getValueFromIndex(poolIndex, columnIndex, pool, metaData)}
-    val e = Map[String, Any](indexes.map(metaData.indexToColumn(_)).zip(values):_*)
-    e
+    val pooledIndexes = getIndexes(pbe.getBitmap())
+    val columnAndPoolIndexTuples =  pooledIndexes.zip(pbe.getPoolIndexesList())
+    val pooledValues = columnAndPoolIndexTuples.map{case (columnIndex, poolIndex) => getValueFromIndex(poolIndex, columnIndex, pool, metaData)}
+    val keyValues = pooledIndexes.map(metaData.indexToColumn(_)).zip(pooledValues)
+    
+    val notPooledIndexes = getIndexes(pbe.getNotPooledBitmap())
+    val keyValues1 = notPooledIndexes.map(metaData.indexToColumn(_)).zip(pbe.getNotPooledValueList().map(PBUtils.toValue(_)))
+    
+    Map[String, Any]((keyValues ++ keyValues1):_*)
   }
   
   private def getValueFromIndex(poolIndex: Int, columnIndex: Int, pool: CEPBDataPool, metaData: CEPBMetaData) : Any = {
-    if (metaData.poolValue(columnIndex)) {
-    	val clas = metaData.getType(columnIndex)
-    	pool.indexToValue(poolIndex, clas)
-    } else poolIndex
+    val clas = metaData.getType(columnIndex)
+    pool.indexToValue(poolIndex, clas)
   }
   
-  private def containsIndex(pbe: PBEntity, index: Int): Boolean = {
-	  (pbe.getBitmap() & (1 << index)) > 0
+  private def getIndexes(bitmap: Int): List[Int] = {
+    (0 to 31).foldRight(List[Int]()) {(index, indexList) => 
+	    if (containsIndex(bitmap, index)) {
+	      index :: indexList
+	    } else indexList
+	}
+  }
+  
+  private def containsIndex(bitmap: Int, index: Int): Boolean = {
+	  (bitmap & (1 << index)) > 0
   }
 }
 

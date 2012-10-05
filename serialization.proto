@@ -3,8 +3,10 @@ package com.memstore;
 option java_package = "com.memstore.serialization";
 
 message PBEntity {
-	required uint32 bitmap = 2;
-	repeated uint32 poolIndexes = 3;
+	required uint32 bitmap = 1;
+	repeated uint32 poolIndexes = 2;
+	optional uint32 notPooledBitmap = 3;
+	repeated PBValue notPooledValue = 4;
 }
 
 message PBEntityManager {
