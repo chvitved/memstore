@@ -11,12 +11,13 @@ import com.memstore.serialization.DeSerializer
 import com.memstore.entity.EntityManager
 import com.memstore.entity.EntityConfig
 import com.memstore.serialization.Serialization.PBEntityManager
+import scala.util.Random
 
 object PersonGenerator extends App{
   
   run()
   
-  var highestPersonId: Int = 0
+  var highestPersonId: Long = 0
   
   def run() {
     
@@ -24,13 +25,19 @@ object PersonGenerator extends App{
 //	  val nameIndexConfig = new IndexConfig("firstName", (e: Entity) => e("firstName").asInstanceOf[String])
 //	  val e = EntityManager().addEntity(new EntityConfig("person", "id", zipIndexConfig, nameIndexConfig))
 	  val em = EntityManager()
-	  val em1 = em.addEntity(new EntityConfig("person", List("id")))
-	  val em2 = generate(1000000, em1)
+	  val em0 = em.addEntity(new EntityConfig("person", List("id")))
+	  val em1 = em0.addEntity(new EntityConfig("children", List("id", "parent", "child")))
+	  val em2 = generate(1000, em1)
 	  MemUtil.printMem()
-	  
+
+	  println("persons: " + em2.map("person").primaryIndex.size)
 	  val t = System.currentTimeMillis
 	  em2.fullScan("person", new Date(), e => true)
-	  println("fullscan took" + (System.currentTimeMillis - t) + " millis")
+	  println("person fullscan took " + (System.currentTimeMillis - t) + " millis")
+	  
+	  println("children: " + em2.map("children").primaryIndex.size)
+	  em2.fullScan("children", new Date(), e => true)
+	  println("children fullscan took " + (System.currentTimeMillis - t) + " millis")
 	  
 	  
 //	  val t = System.currentTimeMillis
@@ -56,16 +63,19 @@ object PersonGenerator extends App{
 	  def compare(a:(Int, EntityTimeline), b:(Int, EntityTimeline)) = a._1 compare b._1
   }
   
-  def generate(number: Int, em: EntityManager) : EntityManager = {
+  def generate(number: Long, em: EntityManager) : EntityManager = {
     val d = new Date()
-    Range(0,number).foldLeft(em) {(em, i) =>
-      if (i % 100000 == 0) {
-    	  println("generated " + i + " persons")
+    Range.Long(0,number,1).foldLeft(em) {(em, id) =>
+      if (id % 100000 == 0) {
+    	  println("generated " + id + " persons")
     	  MemUtil.printMem()
     	  //new Serializer().serialize(em)
       }
-      highestPersonId = i
-      em.add("person", d, generatePerson(i))
+      highestPersonId = id
+      val em1 = em.add("person", d, generatePerson(id))
+      generateChildrenRelation(id).foldLeft(em1) {(em, e) =>
+      	em.add("children", d, e)
+      }
     }
 
 	//creating just entitytimelines => approx 20 meg per 100.000 persons
@@ -115,7 +125,7 @@ object PersonGenerator extends App{
 //    em
   }
   
-  def generatePerson(id: Int): Entity = {
+  def generatePerson(id: Long): Entity = {
    val zip = LoadData.zipCode
    val m = Map[String, Any]("id" -> id,
        "firstName" -> LoadData.firstName, "middleName" -> LoadData.middleName, "lastname" -> LoadData.sirName,
@@ -123,6 +133,14 @@ object PersonGenerator extends App{
        "zip" -> zip.zip, "city" -> zip.city 
    )
    m
+  }
+  
+  def generateChildrenRelation(id: Long): List[Entity] = {
+    if (id > 0) {
+    	val mom = Random.nextLong() % id
+    	val dad = Random.nextLong() % id
+    	List(Map("id" -> Random.nextLong(), "parent" -> mom, "child" -> id),Map("id" -> Random.nextLong(), "parent" -> dad, "child" -> id))
+    } else List()
   }
   
 }
