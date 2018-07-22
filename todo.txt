@@ -1,0 +1,58 @@
+en ny v�rdi uden �ndringer i forhold til den sidste medf�rer ingen �ndringer for EntityTimeline. 
+Dette kan v�re problematisk, da man s� ikke kan se der er indsat en ny v�rdi til det nye tidspunkt.
+Det kan f.eks v�re problematisk da vi checker man hele tiden inds�tter nyere data. 
+Det kan vi ikke se n�r vi bare smider nogle inds�ttelser helt v�k, hvis de er magen til forrige v�rdi
+
+when adding an entity check the types of the columns
+
+When using indexes. Dont fetch entities for each index. Get the id's from each index and last fetch the entities
+
+balance nodes in clustered index to have approxamately same number of entries
+
+size of node in clustered index should be decided using bytesize, not number of elements 
+
+test garbage collection
+
+Do not parse queries each time. use caching (prepared queries)
+
+think data migration and schema migration into the database
+
+think canaray releasing ontop of the database
+
+remove warnings when compiling
+
+query
+	parameters should not be indexedseq (remember string example)
+
+index:
+	make it possible to use the index rangge function when doing a range query. We sould not do a bigger than and a less than
+
+memory used for resultsets
+	How should we handle results that are being send to clients over the network, where the client/connection is slow, so things pile up at the server  
+
+the class Compactentity is used as factory for different ce implementations. This is not very elegant. refactor!
+entities can not contain more than 32 columns
+
+datapool: count all entries, so objects are removed when they are not used
+
+probably remove ValuePool
+
+outstanding unit test
+query tst with time
+query test on primary key
+query can return metadata telling how the query was executed
+test tombstones in entitytimeline
+index tests
+entitytimeline removal
+
+
+query stuff
+need in operator
+need range operator
+query planning
+	score indexes on the operator (eq is better than greater than)
+query validation
+	validate entity exist
+	validate parameters (they cannot be null??)
+
+	

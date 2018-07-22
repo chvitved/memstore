@@ -1,0 +1,64 @@
+package com.memstore;
+
+option java_package = "com.memstore.serialization";
+
+message PBEntity {
+	required uint32 bitmap = 1;
+	repeated uint32 poolIndexes = 2;
+	optional uint32 notPooledBitmap = 3;
+	repeated PBValue notPooledValue = 4;
+}
+
+message PBEntityTimeline {
+	repeated uint64 date = 1;
+	repeated PBEntityTimelineValue value = 2;
+}
+
+message PBEntityTimelineValue {
+	optional Tombstone tombstone = 1;
+	optional PBEntity entity = 2;
+}
+
+message Tombstone{}
+
+
+message PBValue {
+	optional string string = 1;
+	optional int32 int = 2;
+	optional int64 long = 3;
+	optional Tombstone tombstone = 4;
+	optional bool boolean = 5;
+	optional double double = 6;
+	optional bytes bytes = 7;
+	optional float float = 8;
+	optional int64 date = 9;
+}
+
+message Keys {
+	repeated Key key = 1;
+}
+
+message Key {
+	required PBValue key = 1;
+	required uint32 index = 2;
+	required uint32 length = 3;
+}
+
+
+message PBDateIndex {
+	repeated PBValue key = 1;
+	repeated MarkList list = 2;
+	
+	message MarkList {
+		repeated uint64 dates = 1;
+		repeated uint64 tombstoneDates = 2;
+	}
+}
+
+message Header {
+	required uint32 size = 1;
+}
+
+message PBNodeKeys {
+	repeated PBValue key = 1;
+}

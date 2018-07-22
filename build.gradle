@@ -1,0 +1,38 @@
+apply plugin: 'scala'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
+
+version = '0.1'
+group = 'org.memstore'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	// Libraries needed to run the scala tools
+    scalaTools 'org.scala-lang:scala-compiler:2.10.1'
+    scalaTools 'org.scala-lang:scala-library:2.10.1'
+    
+    compile 'com.google.protobuf:protobuf-java:2.3.0'
+    compile 'net.sf.trove4j:trove4j:3.0.3'
+    
+    compile 'org.scalacheck:scalacheck_2.10.0:1.10.0' //this should probably not be compile
+    testCompile 'junit:junit:4.10'
+}
+
+sourceSets {
+    main {
+        scala {
+            srcDir "src"
+        }
+        java {
+            srcDir "gen_src"
+        }
+    }
+    test {
+        scala {
+            srcDir "test"
+        }
+    }
+}
